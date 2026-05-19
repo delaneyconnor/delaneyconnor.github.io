@@ -291,7 +291,7 @@ body {
   top: -16px;
   left: 6px;
 }
-.bar-lbl.visible { opacity: 1; }
+.bar:hover .bar-lbl { opacity: 1; }
 .bar-lbl.lbl-below { top: 8px; }
 
 

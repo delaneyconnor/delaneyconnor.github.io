@@ -146,7 +146,6 @@ function render() {
 
   // Canvas axis position must have enough room above it for all entries
   const canvasAxisY = Math.max(targetAxisY, spaceAbove + PAD_V);
-  const showLabels = PPM >= LABEL_THRESHOLD;
 
   canvas.innerHTML = '';
   canvas.style.cssText = `width:${W}px; height:${Math.max(visH, canvasAxisY + spaceBelow + PAD_V)}px; position:relative;`;
@@ -206,12 +205,9 @@ function render() {
       bar.appendChild(dotE);
     }
 
-    if (showLabels) {
-      const lblCls = 'bar-lbl visible' + (row.yOffset > 0 ? ' lbl-below' : '');
-      const lbl = el('span', lblCls);
-      lbl.textContent = entry.title;
-      bar.appendChild(lbl);
-    }
+    const lbl = el('span', 'bar-lbl' + (row.yOffset > 0 ? ' lbl-below' : ''));
+    lbl.textContent = entry.title;
+    bar.appendChild(lbl);
 
     bar.addEventListener('click', e => { e.stopPropagation(); openFocus(entry); });
     canvas.appendChild(bar);
