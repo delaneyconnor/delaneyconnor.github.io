@@ -253,6 +253,7 @@ function openFocus(entry) {
       ${entry.external_link ? `<a href="${entry.external_link}" target="_blank" rel="noopener" class="s-link">${entry.external_link_label || 'View →'}</a>` : ''}
     </div>
     <div class="sheet-right">
+      ${entry.image ? `<img src="${entry.image}" alt="${entry.title}" class="s-img">` : ''}
       ${desc ? `<div class="s-desc">${desc.replace(/\n/g, '<br>')}</div>` : ''}
       ${tags.length ? `<div class="s-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
     </div>
