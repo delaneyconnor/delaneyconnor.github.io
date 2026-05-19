@@ -12,7 +12,8 @@ const CAT_COLORS = {
 const ROW_H   = 24;
 const BAR_H   = 2;
 const PAD_V   = 48;
-const CAT_GAP = 16;
+const CAT_GAP = 14;
+const AXIS_GAP = 10;  // space from axis to nearest entry
 const LABEL_THRESHOLD = 10;
 
 let PPM           = 10;
@@ -79,29 +80,41 @@ function dateRange(entry) {
 }
 
 // ── Build rows ────────────────────────────────────────────
+// Work / Education / Writing fan above the axis; Projects / Graphic Design below
 
 function buildRows(data) {
   const rows = [];
-  let top = 0;
-  let firstCat = true;
+  let above = AXIS_GAP + Math.round(ROW_H / 2);
+  let below = AXIS_GAP + Math.round(ROW_H / 2);
+  let firstAbove = true, firstBelow = true;
 
-  CAT_ORDER.forEach(cat => {
+  ['Work', 'Education', 'Writing'].forEach(cat => {
     if (!activeFilters.has(cat)) return;
-    const entries = data
-      .filter(d => d.category === cat)
+    const entries = data.filter(d => d.category === cat)
       .sort((a, b) => toMonths(a.start_month, a.start_year) - toMonths(b.start_month, b.start_year));
     if (!entries.length) return;
-
-    if (!firstCat) top += CAT_GAP;
-    firstCat = false;
-
+    if (!firstAbove) above += CAT_GAP;
+    firstAbove = false;
     entries.forEach(entry => {
-      rows.push({ type: 'entry', entry, cat, top, height: ROW_H });
-      top += ROW_H;
+      rows.push({ entry, cat, yOffset: -above });
+      above += ROW_H;
     });
   });
 
-  return { rows, contentHeight: top };
+  ['Projects', 'Graphic Design'].forEach(cat => {
+    if (!activeFilters.has(cat)) return;
+    const entries = data.filter(d => d.category === cat)
+      .sort((a, b) => toMonths(a.start_month, a.start_year) - toMonths(b.start_month, b.start_year));
+    if (!entries.length) return;
+    if (!firstBelow) below += CAT_GAP;
+    firstBelow = false;
+    entries.forEach(entry => {
+      rows.push({ entry, cat, yOffset: below });
+      below += ROW_H;
+    });
+  });
+
+  return { rows, spaceAbove: above, spaceBelow: below };
 }
 
 // ── Render ────────────────────────────────────────────────
@@ -121,56 +134,40 @@ function render() {
   const endY   = Math.ceil((maxM + 1) / 12) + 1;
   const W      = (endY - startY) * 12 * PPM;
 
-  const { rows, contentHeight } = buildRows(filtered);
-  const visH    = canvasWrap.clientHeight;
-  // Subtract half the top-bar height (32px) so the block centers at 50vh, matching the intro line
-  const offsetY = Math.max(PAD_V, Math.floor((visH - contentHeight) / 2) - 32);
+  const { rows, spaceAbove, spaceBelow } = buildRows(filtered);
+  const visH = canvasWrap.clientHeight;
+  // Axis at 50vh from viewport; shift down only if above content would clip
+  const axisY = Math.max(spaceAbove + PAD_V, Math.round(visH / 2) - 32);
   const showLabels = PPM >= LABEL_THRESHOLD;
 
   canvas.innerHTML = '';
-  canvas.style.cssText = `width:${W}px; height:${Math.max(visH, contentHeight + PAD_V * 2)}px; position:relative;`;
+  canvas.style.cssText = `width:${W}px; height:${Math.max(visH, axisY + spaceBelow + PAD_V)}px; position:relative;`;
   if (focusedEntry) canvas.classList.add('focused');
 
-  // Vertical year grid lines
-  for (let y = startY; y <= endY; y++) {
-    const left = (y * 12 - minM) * PPM;
-    if (left < 0 || left > W) continue;
-    const line = el('div', 'grid-year');
-    line.style.left = left + 'px';
-    canvas.appendChild(line);
-  }
+  // The axis line — visually continues the intro screen's expanding line
+  const axis = el('div', 'axis-line');
+  axis.style.cssText = `top:${axisY}px; width:${W}px;`;
+  canvas.appendChild(axis);
 
-  // Year labels and month ticks, floating just above the entry block
-  const tickY = Math.max(4, offsetY - 22);
+  // Year labels sit just above the axis
   for (let y = startY; y <= endY; y++) {
     const left = (y * 12 - minM) * PPM;
     if (left < 0 || left > W) continue;
     const tick = el('div', 'year-tick');
     tick.style.left = left + 'px';
-    tick.style.top  = tickY + 'px';
+    tick.style.top  = (axisY - 18) + 'px';
     tick.textContent = y;
     canvas.appendChild(tick);
-    if (PPM >= 5) {
-      for (let m = 1; m < 12; m++) {
-        const ml = (y * 12 + m - minM) * PPM;
-        if (ml >= W) break;
-        const mt = el('div', 'month-tick');
-        mt.style.left   = ml + 'px';
-        mt.style.top    = tickY + 'px';
-        mt.style.height = '8px';
-        canvas.appendChild(mt);
-      }
-    }
   }
 
-  // Entry rows
+  // Entry lines branching above and below the axis
   rows.forEach(row => {
     const entry  = row.entry;
     const startM = toMonths(entry.start_month, entry.start_year);
     const endM   = entryEnd(entry);
     const left   = (startM - minM) * PPM;
     const width  = Math.max((endM - startM + 1) * PPM, 10);
-    const top    = offsetY + row.top + Math.round((ROW_H - BAR_H) / 2);
+    const top    = axisY + row.yOffset - Math.round(BAR_H / 2);
     const color  = CAT_COLORS[entry.category] || '#888';
 
     const bar = el('div', 'bar');
@@ -186,7 +183,8 @@ function render() {
     bar.appendChild(dotE);
 
     if (showLabels) {
-      const lbl = el('span', 'bar-lbl visible');
+      const lblCls = 'bar-lbl visible' + (row.yOffset > 0 ? ' lbl-below' : '');
+      const lbl = el('span', lblCls);
       lbl.textContent = entry.title;
       bar.appendChild(lbl);
     }
@@ -317,8 +315,12 @@ function renderFilters() {
 
 function makeBtn(label, color, active) {
   const b = el('button', 'filter-btn' + (active ? ' active' : ''));
-  b.textContent = label;
   if (color) b.style.setProperty('--c', color);
+  const dot = el('span', 'filter-dot');
+  b.appendChild(dot);
+  const lbl = el('span', 'filter-lbl');
+  lbl.textContent = label;
+  b.appendChild(lbl);
   return b;
 }
 
