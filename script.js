@@ -83,34 +83,16 @@ function dateRange(entry) {
 // ── Build rows ────────────────────────────────────────────
 // Work / Education / Writing fan above the axis; Projects / Graphic Design below
 
-// Pack entries into the fewest lanes with no time overlap, sorted by start date
-function packLanes(entries) {
-  const sorted = [...entries].sort((a, b) =>
+function buildRows(data) {
+  const sorted = [...data].sort((a, b) =>
     toMonths(a.start_month, a.start_year) - toMonths(b.start_month, b.start_year)
   );
-  const laneEnds = []; // end month of the last entry in each lane
-  const result   = [];
-  sorted.forEach(entry => {
-    const startM = toMonths(entry.start_month, entry.start_year);
-    const endM   = entryEnd(entry);
-    let lane = laneEnds.findIndex(end => end < startM);
-    if (lane === -1) { lane = laneEnds.length; laneEnds.push(endM); }
-    else             { laneEnds[lane] = endM; }
-    result.push({ entry, lane });
-  });
-  return result;
-}
-
-function buildRows(data) {
-  const rows   = [];
-  const packed = packLanes(data);
-  const numLanes = packed.length ? Math.max(...packed.map(r => r.lane)) + 1 : 0;
-
-  packed.forEach(({ entry, lane }) => {
-    rows.push({ entry, cat: entry.category, yOffset: -(AXIS_GAP + Math.round(ROW_H / 2) + lane * ROW_H) });
-  });
-
-  const spaceAbove = numLanes ? AXIS_GAP + ROW_H * numLanes : AXIS_GAP;
+  const rows = sorted.map((entry, i) => ({
+    entry,
+    cat: entry.category,
+    yOffset: -(AXIS_GAP + Math.round(ROW_H / 2) + i * ROW_H),
+  }));
+  const spaceAbove = sorted.length ? AXIS_GAP + ROW_H * sorted.length : AXIS_GAP;
   return { rows, spaceAbove, spaceBelow: PAD_V };
 }
 
@@ -176,8 +158,8 @@ function render() {
     const startM  = toMonths(entry.start_month, entry.start_year);
     const endM    = entryEnd(entry);
     const left    = (startM - originM) * PPM;
-    const durPx   = (endM - startM) * PPM;
-    const isPoint = !entry.end_year && !entry.end_month && durPx < 2; // single-date event
+    const isPoint = !entry.end_year && !entry.end_month;
+    const durPx   = isPoint ? 0 : (endM - startM) * PPM;
     const width   = isPoint ? 0 : Math.max(durPx + PPM, 10);
     const top     = canvasAxisY + row.yOffset - Math.round(BAR_H / 2);
     const color   = CAT_COLORS[entry.category] || '#888';
