@@ -9,11 +9,12 @@ const CAT_COLORS = {
   'Graphic Design': '#FF9800',
 };
 
-const ROW_H   = 44;  // px per entry row
-const LINE_Y  = 30;  // y of line within its row (space above for labels)
-const CAT_GAP = 18;  // extra gap between category groups
-const PAD_TOP = 24;  // canvas top padding
-const LABEL_PPM_THRESHOLD = 10; // PPM at which labels appear
+const CAT_H   = 26;
+const ROW_H   = 40;
+const BAR_H   = 22;
+const PAD_V   = 20;
+const CAT_GAP = 16;
+const LABEL_THRESHOLD = 10; // PPM at which bar labels appear
 
 let PPM           = 10;
 let allData       = [];
@@ -78,11 +79,11 @@ function dateRange(entry) {
   return `${s} – ${e}`;
 }
 
-// ── Layout rows ───────────────────────────────────────────
+// ── Build rows ────────────────────────────────────────────
 
 function buildRows(data) {
   const rows = [];
-  let top = PAD_TOP;
+  let top = PAD_V;
   let firstCat = true;
 
   CAT_ORDER.forEach(cat => {
@@ -95,13 +96,17 @@ function buildRows(data) {
     if (!firstCat) top += CAT_GAP;
     firstCat = false;
 
+    // Category header row
+    rows.push({ type: 'cat', cat, top, height: CAT_H });
+    top += CAT_H;
+
     entries.forEach(entry => {
-      rows.push({ entry, cat, top });
+      rows.push({ type: 'entry', entry, cat, top, height: ROW_H });
       top += ROW_H;
     });
   });
 
-  return { rows, totalHeight: top + PAD_TOP };
+  return { rows, totalHeight: top + PAD_V };
 }
 
 // ── Render ────────────────────────────────────────────────
@@ -118,15 +123,14 @@ function render() {
 
   const allStart = filtered.map(d => toMonths(d.start_month, d.start_year));
   const allEnd   = filtered.map(d => entryEnd(d));
-  const minM = Math.min(...allStart);
-  const maxM = Math.max(...allEnd);
+  const minM  = Math.min(...allStart);
+  const maxM  = Math.max(...allEnd);
   const startY = Math.floor(minM / 12);
   const endY   = Math.ceil((maxM + 1) / 12) + 1;
-  const totalM = (endY - startY) * 12;
-  const W = totalM * PPM;
+  const W = (endY - startY) * 12 * PPM;
 
   const { rows, totalHeight } = buildRows(filtered);
-  const showLabels = PPM >= LABEL_PPM_THRESHOLD;
+  const showLabels = PPM >= LABEL_THRESHOLD;
 
   // Year ruler
   ruler.innerHTML = '';
@@ -134,12 +138,10 @@ function render() {
   for (let y = startY; y <= endY; y++) {
     const left = (y * 12 - minM) * PPM;
     if (left < 0 || left > W) continue;
-
     const tick = el('div', 'year-tick');
     tick.style.left = left + 'px';
     tick.textContent = y;
     ruler.appendChild(tick);
-
     if (PPM >= 5) {
       for (let m = 1; m < 12; m++) {
         const ml = (y * 12 + m - minM) * PPM;
@@ -165,38 +167,37 @@ function render() {
     canvas.appendChild(line);
   }
 
-  // Entry lines
-  rows.forEach(({ entry, cat, top }) => {
+  // Rows
+  rows.forEach(row => {
+    if (row.type === 'cat') {
+      // Subtle category stripe background
+      const stripe = el('div', 'cat-stripe');
+      stripe.style.cssText = `top:${row.top}px; height:${row.height}px;`;
+      canvas.appendChild(stripe);
+      return;
+    }
+
+    const entry  = row.entry;
     const startM = toMonths(entry.start_month, entry.start_year);
     const endM   = entryEnd(entry);
     const left   = (startM - minM) * PPM;
-    const width  = Math.max((endM - startM + 1) * PPM, 8);
-    const lineY  = top + LINE_Y;
+    const width  = Math.max((endM - startM + 1) * PPM, 4);
+    const top    = row.top + Math.round((ROW_H - BAR_H) / 2);
     const color  = CAT_COLORS[entry.category] || '#888';
 
-    const line = el('div', 'entry-line');
-    line.style.cssText = `left:${left}px; width:${width}px; top:${lineY}px;`;
-    if (focusedEntry === entry) line.classList.add('selected');
+    const bar = el('div', 'bar');
+    bar.style.cssText = `left:${left}px; width:${width}px; top:${top}px; background:${color};`;
+    if (focusedEntry === entry) bar.classList.add('selected');
 
-    // Colored endpoint circles
-    const dotS = el('div', 'entry-dot dot-start');
-    dotS.style.background = color;
-    const dotE = el('div', 'entry-dot dot-end');
-    dotE.style.background = color;
-
-    // Label above line
-    const lbl = el('span', 'entry-lbl' + (showLabels ? ' visible' : ''));
+    const lbl = el('span', 'bar-lbl' + (showLabels ? ' visible' : ''));
     lbl.textContent = entry.title;
+    bar.appendChild(lbl);
 
-    line.appendChild(dotS);
-    line.appendChild(dotE);
-    line.appendChild(lbl);
+    bar.addEventListener('click',      e => { e.stopPropagation(); openFocus(entry); });
+    bar.addEventListener('mouseenter', e => { if (!focusedEntry) showTip(e, entry); });
+    bar.addEventListener('mouseleave', hideTip);
 
-    line.addEventListener('click', e => { e.stopPropagation(); openFocus(entry); });
-    line.addEventListener('mouseenter', e => { if (!focusedEntry) showTip(e, entry); });
-    line.addEventListener('mouseleave', hideTip);
-
-    canvas.appendChild(line);
+    canvas.appendChild(bar);
   });
 }
 
@@ -229,19 +230,17 @@ function moveTip(e) {
 function hideTip() { if (tipEl) { tipEl.remove(); tipEl = null; } }
 document.addEventListener('mousemove', moveTip);
 
-// ── Focus / detail ────────────────────────────────────────
+// ── Focus / detail sheet ──────────────────────────────────
 
 function openFocus(entry) {
   hideTip();
   focusedEntry = entry;
   render();
 
-  const sheet = document.getElementById('detail-sheet');
   const body  = document.getElementById('sheet-body');
   const color = CAT_COLORS[entry.category] || '#000';
-
-  const tags = (entry.tags || '').split(',').map(t => t.trim()).filter(Boolean);
-  const desc = entry.long_description || entry.short_description || '';
+  const tags  = (entry.tags || '').split(',').map(t => t.trim()).filter(Boolean);
+  const desc  = entry.long_description || entry.short_description || '';
 
   body.className = 'sheet-body';
   body.innerHTML = `
@@ -259,14 +258,14 @@ function openFocus(entry) {
     </div>
   `;
 
-  sheet.classList.add('open');
+  document.getElementById('detail-sheet').classList.add('open');
 }
 
 function closeFocus() {
   focusedEntry = null;
   document.getElementById('canvas').classList.remove('focused');
   document.getElementById('detail-sheet').classList.remove('open');
-  document.querySelectorAll('.entry-line.selected').forEach(l => l.classList.remove('selected'));
+  document.querySelectorAll('.bar.selected').forEach(b => b.classList.remove('selected'));
 }
 
 // ── About ─────────────────────────────────────────────────
@@ -276,9 +275,7 @@ function openAbout() {
   focusedEntry = null;
   document.getElementById('canvas').classList.remove('focused');
 
-  const sheet = document.getElementById('detail-sheet');
-  const body  = document.getElementById('sheet-body');
-
+  const body = document.getElementById('sheet-body');
   body.className = 'sheet-body about-mode';
   body.innerHTML = `
     <div class="about-bio">
@@ -292,7 +289,7 @@ function openAbout() {
     </div>
   `;
 
-  sheet.classList.add('open');
+  document.getElementById('detail-sheet').classList.add('open');
 }
 
 // ── Filters ───────────────────────────────────────────────
@@ -333,22 +330,33 @@ function runIntro() {
   return new Promise(resolve => {
     const introLine = document.getElementById('intro-line');
     const introName = document.getElementById('intro-name');
+    const viewBtn   = document.getElementById('view-btn');
     const intro     = document.getElementById('intro');
     const app       = document.getElementById('app');
 
-    // Expand line, fade name
-    introLine.classList.add('expand');
-    introName.classList.add('fade');
+    viewBtn.addEventListener('click', () => {
+      // Fade name and button
+      introName.classList.add('fade');
+      viewBtn.classList.add('fade');
 
-    // After line expands, reveal app
-    setTimeout(() => {
-      intro.classList.add('hidden');
-      app.classList.add('visible');
+      // Phase 1: expand line width
+      introLine.classList.add('expand');
+
+      // Phase 2 (after width expands): slide line up to ruler position
       setTimeout(() => {
-        intro.style.display = 'none';
-        resolve();
-      }, 650);
-    }, 1150);
+        introLine.classList.add('to-ruler');
+
+        // Phase 3: reveal app while intro fades
+        setTimeout(() => {
+          intro.classList.add('hidden');
+          app.classList.add('visible');
+          setTimeout(() => {
+            intro.style.display = 'none';
+            resolve();
+          }, 600);
+        }, 500);
+      }, 950);
+    }, { once: true });
   });
 }
 
@@ -358,7 +366,7 @@ async function init() {
   const canvasWrap = document.getElementById('canvas-wrap');
   const ruler      = document.getElementById('year-ruler');
 
-  // Ruler scroll sync
+  // Ruler horizontal scroll sync
   canvasWrap.addEventListener('scroll', () => {
     ruler.style.transform = `translateX(-${canvasWrap.scrollLeft}px)`;
   });
@@ -383,22 +391,17 @@ async function init() {
     if (focusedEntry) closeFocus();
   });
 
-  // Sheet close button
+  // Sheet close
   document.getElementById('sheet-close').addEventListener('click', closeFocus);
 
   // About
   document.getElementById('about-btn').addEventListener('click', openAbout);
 
-  // Fetch data + enforce minimum 3s intro
-  const [data] = await Promise.all([
-    fetchData().catch(() => []),
-    new Promise(r => setTimeout(r, 3000)),
-  ]);
-  allData = data;
+  // Fetch data in parallel with waiting for user to click
+  fetchData()
+    .then(data => { allData = data; renderFilters(); render(); })
+    .catch(() => { allData = []; renderFilters(); render(); });
 
-  // Render hidden content, then play intro reveal
-  renderFilters();
-  render();
   await runIntro();
 }
 

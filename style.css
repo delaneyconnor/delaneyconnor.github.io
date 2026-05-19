@@ -22,40 +22,82 @@ body {
   position: fixed;
   inset: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   background: #fff;
   z-index: 200;
-  transition: opacity 0.6s ease;
+  transition: opacity 0.55s ease;
+}
+.intro.hidden {
+  opacity: 0;
   pointer-events: none;
 }
-.intro.hidden { opacity: 0; }
 
-.intro-line {
-  width: 80px;
-  height: 1.5px;
-  background: #000;
-  transition: width 1.1s cubic-bezier(0.4, 0, 0.2, 1);
+.intro-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
 }
-.intro-line.expand { width: 100vw; }
 
 .intro-name {
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 700;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   letter-spacing: 0.22em;
-  margin-top: 1.1rem;
-  transition: opacity 0.5s ease;
+  margin-bottom: 1rem;
+  transition: opacity 0.4s ease;
 }
 .intro-name.fade { opacity: 0; }
+
+/* The line starts short and centered; on click it expands to full
+   width AND translates up to sit exactly on the ruler border */
+.intro-line {
+  width: 72px;
+  height: 1.5px;
+  background: #000;
+  /* transitions: width expands, then translateY moves it to ruler */
+  transition:
+    width 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.75s 0.85s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.4s 1.5s ease;
+}
+/* Phase 1: expand width to 100vw */
+.intro-line.expand {
+  width: 100vw;
+}
+/* Phase 2 (delayed): slide line up to ruler position
+   The .intro-content is centered, so the line center is at 50vh.
+   We need to move it up to: (var(--bar-h) + var(--ruler-h)) = 80px from top.
+   Distance = 50vh - 80px. We overshoot slightly with 1px to merge with border. */
+.intro-line.to-ruler {
+  transform: translateY(calc(-50vh + var(--bar-h) + var(--ruler-h) - 1px));
+  opacity: 0;
+}
+
+.view-btn {
+  margin-top: 1.4rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: #000;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #000;
+  padding-bottom: 2px;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+.view-btn:hover { opacity: 0.45; }
+.view-btn.fade { opacity: 0; pointer-events: none; }
 
 /* ── MAIN APP ─────────────────────────────────────────── */
 .app {
   position: fixed;
   inset: 0;
   opacity: 0;
-  transition: opacity 0.6s ease;
+  transition: opacity 0.5s ease;
   pointer-events: none;
 }
 .app.visible {
@@ -216,52 +258,48 @@ body {
   pointer-events: none;
 }
 
-/* ── ENTRY LINES ──────────────────────────────────────── */
-.entry-line {
+.cat-stripe {
   position: absolute;
-  height: 1.5px;
-  background: #000;
+  left: 0; right: 0;
+  background: #f5f5f5;
+  pointer-events: none;
+}
+
+/* ── BARS ─────────────────────────────────────────────── */
+.bar {
+  position: absolute;
+  height: 22px;
+  border-radius: 2px;
   cursor: pointer;
-  transition: opacity 0.28s ease;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  transition: filter 0.12s, box-shadow 0.12s, opacity 0.28s ease;
 }
-.entry-line:hover { z-index: 5; }
-
-/* dimmed state during focus mode */
-.canvas.focused .entry-line { opacity: 0.06; }
-.canvas.focused .entry-line.selected { opacity: 1; z-index: 10; }
-
-.entry-dot {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  top: 50%;
-}
-.entry-dot.dot-start {
-  left: 0;
-  transform: translate(-50%, -50%);
-}
-.entry-dot.dot-end {
-  right: 0;
-  transform: translate(50%, -50%);
+.bar:hover {
+  filter: brightness(1.18);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 5;
 }
 
-.entry-lbl {
-  position: absolute;
-  bottom: calc(100% + 5px);
-  left: 2px;
+/* focus mode: dim everything except the selected bar */
+.canvas.focused .bar { opacity: 0.06; }
+.canvas.focused .bar.selected { opacity: 1; z-index: 10; }
+
+.bar-lbl {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.61rem;
+  font-weight: 400;
+  color: #fff;
   white-space: nowrap;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.6rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: #000;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 7px;
+  pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;
-  pointer-events: none;
-  user-select: none;
 }
-.entry-lbl.visible { opacity: 1; }
+.bar-lbl.visible { opacity: 1; }
 
 /* ── TOOLTIP ──────────────────────────────────────────── */
 .tip {
@@ -326,7 +364,6 @@ body {
   gap: 1.5rem;
   align-items: start;
 }
-
 .sheet-left { display: flex; flex-direction: column; gap: 0.2rem; }
 
 .s-cat {
@@ -375,8 +412,6 @@ body {
 }
 .s-link:hover { opacity: 0.5; }
 
-.sheet-right {}
-
 .s-desc {
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 0.84rem;
@@ -398,10 +433,7 @@ body {
   color: #777;
 }
 
-/* about panel reuses sheet-body single-column */
-.sheet-body.about-mode {
-  grid-template-columns: 1fr;
-}
+.sheet-body.about-mode { grid-template-columns: 1fr; }
 .about-bio p {
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 0.84rem;
@@ -411,8 +443,4 @@ body {
   margin-bottom: 0.9rem;
 }
 .about-bio p:last-child { margin-bottom: 0; }
-.about-links {
-  display: flex;
-  gap: 1.5rem;
-  margin-top: 1rem;
-}
+.about-links { display: flex; gap: 1.5rem; margin-top: 1rem; }
