@@ -9,8 +9,8 @@ const CAT_COLORS = {
   'Graphic Design': '#FF9800',
 };
 
-const ROW_H   = 24;
-const BAR_H   = 2;
+const ROW_H   = 36;
+const BAR_H   = 1;
 const PAD_V   = 48;
 const CAT_GAP = 14;
 const AXIS_GAP = 10;  // space from axis to nearest entry
@@ -131,7 +131,7 @@ function render() {
   const allEnd   = allData.map(d => entryEnd(d));
   const minM   = Math.min(...allStart);
   const maxM   = Math.max(...allEnd);
-  const startY = Math.floor(minM / 12);
+  const startY = Math.floor(minM / 12) - 2; // 2 years breathing room on left
   const endY   = Math.ceil((maxM + 1) / 12) + 1;
   const W      = (endY - startY) * 12 * PPM;
 
@@ -334,7 +334,7 @@ function makeBtn(label, color, active) {
 function fitToWidth(data) {
   const allStart = data.map(d => toMonths(d.start_month, d.start_year));
   const allEnd   = data.map(d => entryEnd(d));
-  const startY   = Math.floor(Math.min(...allStart) / 12);
+  const startY   = Math.floor(Math.min(...allStart) / 12) - 2;
   const endY     = Math.ceil((Math.max(...allEnd) + 1) / 12) + 1;
   const months   = (endY - startY) * 12;
   const w        = document.getElementById('canvas-wrap').clientWidth;
