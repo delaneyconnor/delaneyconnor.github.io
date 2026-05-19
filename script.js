@@ -154,9 +154,11 @@ function render() {
   canvas.appendChild(axis);
 
   // Year labels just above the axis
+  // All positions are relative to startY*12 (canvas origin) so 2017/2018 show correctly
+  const originM = startY * 12;
   for (let y = startY; y <= endY; y++) {
-    const left = (y * 12 - minM) * PPM;
-    if (left < 0 || left > W) continue;
+    const left = (y * 12 - originM) * PPM;
+    if (left > W) continue;
     const tick = el('div', 'year-tick');
     tick.style.left = left + 'px';
     tick.style.top  = (axisY - 18) + 'px';
@@ -169,7 +171,7 @@ function render() {
     const entry  = row.entry;
     const startM = toMonths(entry.start_month, entry.start_year);
     const endM   = entryEnd(entry);
-    const left   = (startM - minM) * PPM;
+    const left   = (startM - originM) * PPM;
     const width  = Math.max((endM - startM + 1) * PPM, 10);
     const top    = axisY + row.yOffset - Math.round(BAR_H / 2);
     const color  = CAT_COLORS[entry.category] || '#888';
