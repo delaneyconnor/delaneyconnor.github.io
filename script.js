@@ -372,11 +372,22 @@ function startPortfolio() {
   document.getElementById('intro-line').classList.add('expand');
 
   setTimeout(function () {
-    document.getElementById('intro').classList.add('hidden');
-    document.getElementById('app').classList.add('visible');
+    const line      = document.getElementById('intro-line');
+    const lineRect  = line.getBoundingClientRect();
+    const rulerRect = document.querySelector('.ruler-wrap').getBoundingClientRect();
+    // Align line center to ruler's bottom border
+    const lineCenterY   = lineRect.top + lineRect.height / 2;
+    const targetCenterY = rulerRect.bottom - lineRect.height / 2;
+    line.style.transform = 'translateY(' + (targetCenterY - lineCenterY) + 'px)';
+
+    // After line arrives, crossfade intro out and app in
     setTimeout(function () {
-      document.getElementById('intro').style.display = 'none';
-    }, 600);
+      document.getElementById('intro').classList.add('hidden');
+      document.getElementById('app').classList.add('visible');
+      setTimeout(function () {
+        document.getElementById('intro').style.display = 'none';
+      }, 600);
+    }, 700);
   }, 900);
 }
 
