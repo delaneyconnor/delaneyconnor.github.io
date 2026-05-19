@@ -83,39 +83,46 @@ function dateRange(entry) {
 // ── Build rows ────────────────────────────────────────────
 // Work / Education / Writing fan above the axis; Projects / Graphic Design below
 
+// Pack entries into the fewest lanes with no time overlap, sorted by start date
+function packLanes(entries) {
+  const sorted = [...entries].sort((a, b) =>
+    toMonths(a.start_month, a.start_year) - toMonths(b.start_month, b.start_year)
+  );
+  const laneEnds = []; // end month of the last entry in each lane
+  const result   = [];
+  sorted.forEach(entry => {
+    const startM = toMonths(entry.start_month, entry.start_year);
+    const endM   = entryEnd(entry);
+    let lane = laneEnds.findIndex(end => end < startM);
+    if (lane === -1) { lane = laneEnds.length; laneEnds.push(endM); }
+    else             { laneEnds[lane] = endM; }
+    result.push({ entry, lane });
+  });
+  return result;
+}
+
 function buildRows(data) {
-  const rows = [];
-  let above = AXIS_GAP + Math.round(ROW_H / 2);
-  let below = AXIS_GAP + Math.round(ROW_H / 2);
-  let firstAbove = true, firstBelow = true;
+  const rows        = [];
+  const aboveCats   = ['Work', 'Education', 'Writing'];
+  const belowCats   = ['Projects', 'Graphic Design'];
 
-  ['Work', 'Education', 'Writing'].forEach(cat => {
-    if (!activeFilters.has(cat)) return;
-    const entries = data.filter(d => d.category === cat)
-      .sort((a, b) => toMonths(a.start_month, a.start_year) - toMonths(b.start_month, b.start_year));
-    if (!entries.length) return;
-    if (!firstAbove) above += CAT_GAP;
-    firstAbove = false;
-    entries.forEach(entry => {
-      rows.push({ entry, cat, yOffset: -above });
-      above += ROW_H;
-    });
+  const abovePacked = packLanes(data.filter(d => aboveCats.includes(d.category)));
+  const belowPacked = packLanes(data.filter(d => belowCats.includes(d.category)));
+
+  const numAbove = abovePacked.length ? Math.max(...abovePacked.map(r => r.lane)) + 1 : 0;
+  const numBelow = belowPacked.length ? Math.max(...belowPacked.map(r => r.lane)) + 1 : 0;
+
+  abovePacked.forEach(({ entry, lane }) => {
+    rows.push({ entry, cat: entry.category, yOffset: -(AXIS_GAP + Math.round(ROW_H / 2) + lane * ROW_H) });
+  });
+  belowPacked.forEach(({ entry, lane }) => {
+    rows.push({ entry, cat: entry.category, yOffset:  (AXIS_GAP + Math.round(ROW_H / 2) + lane * ROW_H) });
   });
 
-  ['Projects', 'Graphic Design'].forEach(cat => {
-    if (!activeFilters.has(cat)) return;
-    const entries = data.filter(d => d.category === cat)
-      .sort((a, b) => toMonths(a.start_month, a.start_year) - toMonths(b.start_month, b.start_year));
-    if (!entries.length) return;
-    if (!firstBelow) below += CAT_GAP;
-    firstBelow = false;
-    entries.forEach(entry => {
-      rows.push({ entry, cat, yOffset: below });
-      below += ROW_H;
-    });
-  });
+  const spaceAbove = numAbove ? AXIS_GAP + ROW_H * numAbove : AXIS_GAP;
+  const spaceBelow = numBelow ? AXIS_GAP + ROW_H * numBelow : AXIS_GAP;
 
-  return { rows, spaceAbove: above, spaceBelow: below };
+  return { rows, spaceAbove, spaceBelow };
 }
 
 // ── Render ────────────────────────────────────────────────
