@@ -12,37 +12,45 @@
 </head>
 <body>
 
-  <header class="top-bar">
-    <button class="site-name" id="about-btn">DELANEY CONNOR</button>
-    <div class="header-right">
-      <div id="filter-bar" class="filter-bar"></div>
-      <div class="zoom-wrap">
-        <span class="zoom-icon" title="Zoom out">−</span>
-        <input type="range" id="zoom-slider" min="3" max="60" step="0.5" value="10">
-        <span class="zoom-icon" title="Zoom in">+</span>
-      </div>
-    </div>
-  </header>
-
-  <div class="timeline-shell">
-    <div class="corner">
-      <span class="corner-hint">ctrl+scroll to zoom</span>
-    </div>
-    <div class="ruler-wrap">
-      <div id="year-ruler" class="year-ruler"></div>
-    </div>
-    <div class="labels-wrap">
-      <div id="row-labels" class="row-labels"></div>
-    </div>
-    <div id="canvas-wrap" class="canvas-wrap">
-      <div id="canvas" class="canvas"></div>
-    </div>
+  <!-- Intro screen -->
+  <div id="intro" class="intro">
+    <div id="intro-line" class="intro-line"></div>
+    <div id="intro-name" class="intro-name">DELANEY CONNOR</div>
   </div>
 
-  <aside id="detail-panel" class="detail-panel">
-    <button id="detail-close" class="detail-close">×</button>
-    <div id="detail-body" class="detail-body"></div>
-  </aside>
+  <!-- Main app (hidden until intro completes) -->
+  <div id="app" class="app">
+
+    <header class="top-bar">
+      <button class="site-name" id="about-btn">DELANEY CONNOR</button>
+      <div class="header-right">
+        <div id="filter-bar" class="filter-bar"></div>
+        <div class="zoom-wrap">
+          <span class="zoom-icon">−</span>
+          <input type="range" id="zoom-slider" min="3" max="60" step="0.5" value="10">
+          <span class="zoom-icon">+</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="timeline-shell">
+      <div class="ruler-wrap">
+        <div id="year-ruler" class="year-ruler"></div>
+      </div>
+      <div id="canvas-wrap" class="canvas-wrap">
+        <div id="canvas" class="canvas"></div>
+      </div>
+    </div>
+
+    <!-- Bottom detail sheet -->
+    <div id="detail-sheet" class="detail-sheet">
+      <div class="sheet-bar">
+        <button id="sheet-close" class="sheet-close">×</button>
+      </div>
+      <div id="sheet-body" class="sheet-body"></div>
+    </div>
+
+  </div>
 
   <script src="script.js"></script>
 </body>

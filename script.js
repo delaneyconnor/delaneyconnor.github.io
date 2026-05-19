@@ -1,6 +1,6 @@
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT-OE9XqlJl3nutmKHwy5lBI6WR-NpAL7Ybvo5Bia29jp_pmZ0dMQfkrl1mTJb3GfhgMZg81q-9IQwn/pub?gid=0&single=true&output=csv';
 
-const CAT_ORDER  = ['Work', 'Projects', 'Education', 'Writing', 'Graphic Design'];
+const CAT_ORDER = ['Work', 'Projects', 'Education', 'Writing', 'Graphic Design'];
 const CAT_COLORS = {
   'Work':           '#00897B',
   'Projects':       '#5E35B1',
@@ -9,15 +9,24 @@ const CAT_COLORS = {
   'Graphic Design': '#FF9800',
 };
 
-const CAT_H   = 28;
-const ROW_H   = 40;
-const BAR_H   = 22;
+const ROW_H   = 44;  // px per entry row
+const LINE_Y  = 30;  // y of line within its row (space above for labels)
+const CAT_GAP = 18;  // extra gap between category groups
+const PAD_TOP = 24;  // canvas top padding
+const LABEL_PPM_THRESHOLD = 10; // PPM at which labels appear
 
-let PPM            = 10; // pixels per month
-let allData        = [];
-let activeFilters  = new Set(CAT_ORDER);
+let PPM           = 10;
+let allData       = [];
+let activeFilters = new Set(CAT_ORDER);
+let focusedEntry  = null;
 
 // ── CSV ──────────────────────────────────────────────────
+
+async function fetchData() {
+  const res  = await fetch(CSV_URL);
+  const text = await res.text();
+  return parseCSV(text);
+}
 
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
@@ -59,63 +68,65 @@ function entryEnd(entry) {
   return toMonths(entry.end_month || 12, entry.end_year);
 }
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-function mo(n) { return MONTHS[(parseInt(n) || 1) - 1] || ''; }
+const MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function moStr(n) { return MO[(parseInt(n) || 1) - 1] || ''; }
 
 function dateRange(entry) {
-  const s = `${mo(entry.start_month)} ${entry.start_year}`;
+  const s = `${moStr(entry.start_month)} ${entry.start_year}`;
   const ey = (entry.end_year || '').toLowerCase();
-  const e = (!ey || ey === 'present') ? 'Present' : `${mo(entry.end_month)} ${entry.end_year}`;
+  const e = (!ey || ey === 'present') ? 'Present' : `${moStr(entry.end_month)} ${entry.end_year}`;
   return `${s} – ${e}`;
 }
 
-// ── Build rows ────────────────────────────────────────────
+// ── Layout rows ───────────────────────────────────────────
 
 function buildRows(data) {
   const rows = [];
-  let top = 0;
+  let top = PAD_TOP;
+  let firstCat = true;
+
   CAT_ORDER.forEach(cat => {
     if (!activeFilters.has(cat)) return;
-    const entries = data.filter(d => d.category === cat);
+    const entries = data
+      .filter(d => d.category === cat)
+      .sort((a, b) => toMonths(a.start_month, a.start_year) - toMonths(b.start_month, b.start_year));
     if (!entries.length) return;
-    rows.push({ type: 'cat', cat, top, height: CAT_H });
-    top += CAT_H;
-    entries
-      .slice()
-      .sort((a, b) => toMonths(a.start_month, a.start_year) - toMonths(b.start_month, b.start_year))
-      .forEach(entry => {
-        rows.push({ type: 'entry', entry, cat, top, height: ROW_H });
-        top += ROW_H;
-      });
+
+    if (!firstCat) top += CAT_GAP;
+    firstCat = false;
+
+    entries.forEach(entry => {
+      rows.push({ entry, cat, top });
+      top += ROW_H;
+    });
   });
-  return { rows, totalHeight: top };
+
+  return { rows, totalHeight: top + PAD_TOP };
 }
 
 // ── Render ────────────────────────────────────────────────
 
 function render() {
   const filtered = allData.filter(d => activeFilters.has(d.category));
-
-  const ruler       = document.getElementById('year-ruler');
-  const labels      = document.getElementById('row-labels');
-  const canvas      = document.getElementById('canvas');
+  const ruler    = document.getElementById('year-ruler');
+  const canvas   = document.getElementById('canvas');
 
   if (!filtered.length) {
-    ruler.innerHTML = labels.innerHTML = canvas.innerHTML = '';
+    ruler.innerHTML = canvas.innerHTML = '';
     return;
   }
 
   const allStart = filtered.map(d => toMonths(d.start_month, d.start_year));
   const allEnd   = filtered.map(d => entryEnd(d));
-  const minM     = Math.min(...allStart);
-  const maxM     = Math.max(...allEnd);
-  const startY   = Math.floor(minM / 12);
-  const endY     = Math.ceil((maxM + 1) / 12) + 1;
-
-  const totalMonths = (endY - startY) * 12;
-  const W = totalMonths * PPM;
+  const minM = Math.min(...allStart);
+  const maxM = Math.max(...allEnd);
+  const startY = Math.floor(minM / 12);
+  const endY   = Math.ceil((maxM + 1) / 12) + 1;
+  const totalM = (endY - startY) * 12;
+  const W = totalM * PPM;
 
   const { rows, totalHeight } = buildRows(filtered);
+  const showLabels = PPM >= LABEL_PPM_THRESHOLD;
 
   // Year ruler
   ruler.innerHTML = '';
@@ -140,26 +151,10 @@ function render() {
     }
   }
 
-  // Row labels
-  labels.innerHTML = '';
-  labels.style.height = totalHeight + 'px';
-  rows.forEach(row => {
-    const lb = el('div', row.type === 'cat' ? 'label-cat' : 'label-entry');
-    lb.style.cssText = `top:${row.top}px; height:${row.height}px;`;
-    if (row.type === 'cat') {
-      lb.style.color = CAT_COLORS[row.cat];
-      lb.textContent = row.cat.toUpperCase();
-    } else {
-      lb.textContent = row.entry.title;
-      lb.title = row.entry.title;
-      lb.addEventListener('click', () => openDetail(row.entry));
-    }
-    labels.appendChild(lb);
-  });
-
   // Canvas
   canvas.innerHTML = '';
   canvas.style.cssText = `width:${W}px; height:${totalHeight}px; position:relative;`;
+  if (focusedEntry) canvas.classList.add('focused');
 
   // Vertical year grid lines
   for (let y = startY; y <= endY; y++) {
@@ -170,37 +165,38 @@ function render() {
     canvas.appendChild(line);
   }
 
-  // Rows
-  rows.forEach(row => {
-    if (row.type === 'cat') {
-      const bg = el('div', 'row-cat-bg');
-      bg.style.cssText = `top:${row.top}px; height:${row.height}px;`;
-      canvas.appendChild(bg);
-    } else {
-      const sep = el('div', 'row-sep');
-      sep.style.top = (row.top + row.height - 1) + 'px';
-      canvas.appendChild(sep);
+  // Entry lines
+  rows.forEach(({ entry, cat, top }) => {
+    const startM = toMonths(entry.start_month, entry.start_year);
+    const endM   = entryEnd(entry);
+    const left   = (startM - minM) * PPM;
+    const width  = Math.max((endM - startM + 1) * PPM, 8);
+    const lineY  = top + LINE_Y;
+    const color  = CAT_COLORS[entry.category] || '#888';
 
-      const entry  = row.entry;
-      const startM = toMonths(entry.start_month, entry.start_year);
-      const endM   = entryEnd(entry);
-      const left   = (startM - minM) * PPM;
-      const width  = Math.max((endM - startM + 1) * PPM, 4);
-      const top    = row.top + Math.round((ROW_H - BAR_H) / 2);
-      const color  = CAT_COLORS[entry.category] || '#888';
+    const line = el('div', 'entry-line');
+    line.style.cssText = `left:${left}px; width:${width}px; top:${lineY}px;`;
+    if (focusedEntry === entry) line.classList.add('selected');
 
-      const bar = el('div', 'bar');
-      bar.style.cssText = `left:${left}px; width:${width}px; top:${top}px; background:${color};`;
+    // Colored endpoint circles
+    const dotS = el('div', 'entry-dot dot-start');
+    dotS.style.background = color;
+    const dotE = el('div', 'entry-dot dot-end');
+    dotE.style.background = color;
 
-      const lbl = el('span', 'bar-lbl');
-      lbl.textContent = entry.title;
-      bar.appendChild(lbl);
+    // Label above line
+    const lbl = el('span', 'entry-lbl' + (showLabels ? ' visible' : ''));
+    lbl.textContent = entry.title;
 
-      bar.addEventListener('click',      () => openDetail(entry));
-      bar.addEventListener('mouseenter', e  => showTip(e, entry));
-      bar.addEventListener('mouseleave',     hideTip);
-      canvas.appendChild(bar);
-    }
+    line.appendChild(dotS);
+    line.appendChild(dotE);
+    line.appendChild(lbl);
+
+    line.addEventListener('click', e => { e.stopPropagation(); openFocus(entry); });
+    line.addEventListener('mouseenter', e => { if (!focusedEntry) showTip(e, entry); });
+    line.addEventListener('mouseleave', hideTip);
+
+    canvas.appendChild(line);
   });
 }
 
@@ -233,62 +229,70 @@ function moveTip(e) {
 function hideTip() { if (tipEl) { tipEl.remove(); tipEl = null; } }
 document.addEventListener('mousemove', moveTip);
 
-// ── Detail panel ──────────────────────────────────────────
+// ── Focus / detail ────────────────────────────────────────
 
-function openDetail(entry) {
-  const panel = document.getElementById('detail-panel');
-  const body  = document.getElementById('detail-body');
+function openFocus(entry) {
+  hideTip();
+  focusedEntry = entry;
+  render();
+
+  const sheet = document.getElementById('detail-sheet');
+  const body  = document.getElementById('sheet-body');
   const color = CAT_COLORS[entry.category] || '#000';
 
-  const imgs = [entry.image_1, entry.image_2, entry.image_3]
-    .filter(Boolean)
-    .map(u => {
-      const m = u.match(/\/d\/([a-zA-Z0-9_-]+)/);
-      return m ? `https://drive.google.com/uc?export=view&id=${m[1]}` : u;
-    });
-
   const tags = (entry.tags || '').split(',').map(t => t.trim()).filter(Boolean);
+  const desc = entry.long_description || entry.short_description || '';
 
+  body.className = 'sheet-body';
   body.innerHTML = `
-    <div class="d-cat" style="color:${color}">${entry.category.toUpperCase()}</div>
-    <h2 class="d-title">${entry.title}</h2>
-    <div class="d-date">${dateRange(entry)}</div>
-    ${entry.organization ? `<div class="d-meta">${entry.organization}${entry.location ? ' &middot; ' + entry.location : ''}</div>` : ''}
-    ${entry.role ? `<div class="d-meta d-role">${entry.role}</div>` : '<div class="d-divider"></div>'}
-    ${imgs.length ? `<div class="d-imgs">${imgs.map(s => `<img src="${s}" alt="${entry.image_alt || entry.title}" loading="lazy">`).join('')}</div>` : ''}
-    ${entry.long_description
-      ? `<div class="d-desc">${entry.long_description.replace(/\n/g, '<br>')}</div>`
-      : entry.short_description
-        ? `<div class="d-desc">${entry.short_description}</div>`
-        : ''}
-    ${tags.length ? `<div class="d-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
-    ${entry.external_link ? `<a href="${entry.external_link}" target="_blank" rel="noopener" class="d-link">${entry.external_link_label || 'View →'}</a>` : ''}
+    <div class="sheet-left">
+      <div class="s-cat" style="color:${color}">${entry.category.toUpperCase()}</div>
+      <div class="s-title">${entry.title}</div>
+      <div class="s-date">${dateRange(entry)}</div>
+      ${entry.organization ? `<div class="s-org">${entry.organization}${entry.location ? ' &middot; ' + entry.location : ''}</div>` : ''}
+      ${entry.role ? `<div class="s-role">${entry.role}</div>` : ''}
+      ${entry.external_link ? `<a href="${entry.external_link}" target="_blank" rel="noopener" class="s-link">${entry.external_link_label || 'View →'}</a>` : ''}
+    </div>
+    <div class="sheet-right">
+      ${desc ? `<div class="s-desc">${desc.replace(/\n/g, '<br>')}</div>` : ''}
+      ${tags.length ? `<div class="s-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
+    </div>
   `;
 
-  panel.classList.add('open');
+  sheet.classList.add('open');
 }
 
-function openAbout() {
-  const panel = document.getElementById('detail-panel');
-  const body  = document.getElementById('detail-body');
+function closeFocus() {
+  focusedEntry = null;
+  document.getElementById('canvas').classList.remove('focused');
+  document.getElementById('detail-sheet').classList.remove('open');
+  document.querySelectorAll('.entry-line.selected').forEach(l => l.classList.remove('selected'));
+}
 
+// ── About ─────────────────────────────────────────────────
+
+function openAbout() {
+  hideTip();
+  focusedEntry = null;
+  document.getElementById('canvas').classList.remove('focused');
+
+  const sheet = document.getElementById('detail-sheet');
+  const body  = document.getElementById('sheet-body');
+
+  body.className = 'sheet-body about-mode';
   body.innerHTML = `
-    <div class="d-cat">About</div>
-    <h2 class="d-title">Delaney Connor</h2>
-    <div class="d-divider"></div>
-    <div class="d-about-bio">
+    <div class="about-bio">
       <p>Delaney Connor is a Master's candidate in Design and Urban Ecologies at The New School, where her research examines how public space and infrastructure can foster deeper connections, civic engagement, and self-determination.</p>
       <p>Delaney is a designer, researcher, and urban strategist dedicated to finding solutions that center community power and needs. Her work prioritizes participatory design, collective ownership, and the importance of involving voices historically excluded from the planning and decision-making process.</p>
-      <p>Before moving to New York, Delaney worked in Bozeman, Montana where her work focused on social services addressing homelessness and legal reform. Originally from Seattle, Delaney's undergraduate background transpired in New Orleans where she found inspiration in the unique modes of community resilience and creative forms of resistance.</p>
-      <p>Outside of her work, Delaney enjoys cooking large pots of stew and getting to know New York City by bicycle.</p>
+      <p>Before moving to New York, Delaney worked in Bozeman, Montana. Originally from Seattle, her undergraduate background transpired in New Orleans where she found inspiration in the unique modes of community resilience and creative forms of resistance.</p>
     </div>
-    <div class="d-contact-links">
-      <a href="mailto:delaneyconnor1@gmail.com" class="d-link">delaneyconnor1@gmail.com</a>
-      <a href="https://linkedin.com/in/delaney-connor" target="_blank" rel="noopener" class="d-link">LinkedIn →</a>
+    <div class="about-links">
+      <a href="mailto:delaneyconnor1@gmail.com" class="s-link">delaneyconnor1@gmail.com</a>
+      <a href="https://linkedin.com/in/delaney-connor" target="_blank" rel="noopener" class="s-link">LinkedIn →</a>
     </div>
   `;
 
-  panel.classList.add('open');
+  sheet.classList.add('open');
 }
 
 // ── Filters ───────────────────────────────────────────────
@@ -308,6 +312,7 @@ function renderFilters() {
   CAT_ORDER.forEach(cat => {
     const b = makeBtn(cat, CAT_COLORS[cat], activeFilters.has(cat));
     b.addEventListener('click', () => {
+      focusedEntry = null;
       activeFilters.has(cat) ? activeFilters.delete(cat) : activeFilters.add(cat);
       renderFilters(); render();
     });
@@ -322,17 +327,40 @@ function makeBtn(label, color, active) {
   return b;
 }
 
+// ── Intro sequence ────────────────────────────────────────
+
+function runIntro() {
+  return new Promise(resolve => {
+    const introLine = document.getElementById('intro-line');
+    const introName = document.getElementById('intro-name');
+    const intro     = document.getElementById('intro');
+    const app       = document.getElementById('app');
+
+    // Expand line, fade name
+    introLine.classList.add('expand');
+    introName.classList.add('fade');
+
+    // After line expands, reveal app
+    setTimeout(() => {
+      intro.classList.add('hidden');
+      app.classList.add('visible');
+      setTimeout(() => {
+        intro.style.display = 'none';
+        resolve();
+      }, 650);
+    }, 1150);
+  });
+}
+
 // ── Init ──────────────────────────────────────────────────
 
 async function init() {
   const canvasWrap = document.getElementById('canvas-wrap');
   const ruler      = document.getElementById('year-ruler');
-  const labels     = document.getElementById('row-labels');
 
-  // Freeze-pane scroll sync via transform
+  // Ruler scroll sync
   canvasWrap.addEventListener('scroll', () => {
-    ruler.style.transform  = `translateX(-${canvasWrap.scrollLeft}px)`;
-    labels.style.transform = `translateY(-${canvasWrap.scrollTop}px)`;
+    ruler.style.transform = `translateX(-${canvasWrap.scrollLeft}px)`;
   });
 
   // Zoom slider
@@ -350,26 +378,28 @@ async function init() {
     render();
   }, { passive: false });
 
-  // Detail close
-  document.getElementById('detail-close').addEventListener('click', () => {
-    document.getElementById('detail-panel').classList.remove('open');
+  // Click canvas background = exit focus
+  canvasWrap.addEventListener('click', () => {
+    if (focusedEntry) closeFocus();
   });
 
-  // About panel
+  // Sheet close button
+  document.getElementById('sheet-close').addEventListener('click', closeFocus);
+
+  // About
   document.getElementById('about-btn').addEventListener('click', openAbout);
 
-  // Load data
-  try {
-    const res  = await fetch(CSV_URL);
-    const text = await res.text();
-    allData    = parseCSV(text);
-  } catch (err) {
-    console.error('Could not load portfolio data:', err);
-    allData = [];
-  }
+  // Fetch data + enforce minimum 3s intro
+  const [data] = await Promise.all([
+    fetchData().catch(() => []),
+    new Promise(r => setTimeout(r, 3000)),
+  ]);
+  allData = data;
 
+  // Render hidden content, then play intro reveal
   renderFilters();
   render();
+  await runIntro();
 }
 
 init();
