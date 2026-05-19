@@ -136,12 +136,13 @@ function render() {
   const W      = (endY - startY) * 12 * PPM;
 
   const visH  = canvasWrap.clientHeight;
-  // Axis fixed at 50vh from viewport (intro line is also at 50vh)
-  const axisY = Math.round(visH / 2) - 32;
 
-  const { rows, spaceBelow } = filtered.length
+  const { rows, spaceAbove, spaceBelow } = filtered.length
     ? buildRows(filtered)
-    : { rows: [], spaceBelow: 0 };
+    : { rows: [], spaceAbove: 0, spaceBelow: 0 };
+
+  // Axis sits at 50vh when there's room; pushed down if too many entries above
+  const axisY = Math.max(Math.round(visH / 2) - 32, spaceAbove + PAD_V);
   const showLabels = PPM >= LABEL_THRESHOLD;
 
   canvas.innerHTML = '';

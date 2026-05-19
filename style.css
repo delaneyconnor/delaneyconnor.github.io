@@ -161,8 +161,8 @@ body {
 .filter-btn:hover { opacity: 0.55; }
 
 .filter-dot {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   border: 1.5px solid #000;
   background: transparent;
@@ -264,16 +264,17 @@ body {
 /* colored end-cap circles */
 .dot {
   position: absolute;
-  width: 9px;
-  height: 9px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
+  border: 1.5px solid #000;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
   flex-shrink: 0;
 }
-.dot-start { left: -4px; }
-.dot-end   { right: -4px; }
+.dot-start { left: -6px; }
+.dot-end   { right: -6px; }
 
 .bar-lbl {
   font-family: 'IBM Plex Sans', sans-serif;
