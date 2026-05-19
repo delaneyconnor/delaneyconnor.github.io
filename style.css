@@ -43,37 +43,20 @@ body {
 .intro-name {
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 700;
-  font-size: 0.78rem;
-  letter-spacing: 0.22em;
-  margin-bottom: 1rem;
-  transition: opacity 0.4s ease;
+  font-size: 2rem;
+  letter-spacing: 0.18em;
+  margin-bottom: 1.2rem;
+  transition: opacity 0.35s ease;
 }
 .intro-name.fade { opacity: 0; }
 
-/* The line starts short and centered; on click it expands to full
-   width AND translates up to sit exactly on the ruler border */
 .intro-line {
   width: 72px;
   height: 1.5px;
   background: #000;
-  /* transitions: width expands, then translateY moves it to ruler */
-  transition:
-    width 0.9s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.75s 0.85s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.4s 1.5s ease;
+  transition: width 0.85s cubic-bezier(0.4, 0, 0.2, 1);
 }
-/* Phase 1: expand width to 100vw */
-.intro-line.expand {
-  width: 100vw;
-}
-/* Phase 2 (delayed): slide line up to ruler position
-   The .intro-content is centered, so the line center is at 50vh.
-   We need to move it up to: (var(--bar-h) + var(--ruler-h)) = 80px from top.
-   Distance = 50vh - 80px. We overshoot slightly with 1px to merge with border. */
-.intro-line.to-ruler {
-  transform: translateY(calc(-50vh + var(--bar-h) + var(--ruler-h) - 1px));
-  opacity: 0;
-}
+.intro-line.expand { width: 100vw; }
 
 .view-btn {
   margin-top: 1.4rem;

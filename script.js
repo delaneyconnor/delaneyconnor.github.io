@@ -335,27 +335,17 @@ function runIntro() {
     const app       = document.getElementById('app');
 
     viewBtn.addEventListener('click', () => {
-      // Fade name and button
+      // Fade name + button, expand line simultaneously
       introName.classList.add('fade');
       viewBtn.classList.add('fade');
-
-      // Phase 1: expand line width
       introLine.classList.add('expand');
 
-      // Phase 2 (after width expands): slide line up to ruler position
+      // After line finishes expanding, cross-fade to timeline
       setTimeout(() => {
-        introLine.classList.add('to-ruler');
-
-        // Phase 3: reveal app while intro fades
-        setTimeout(() => {
-          intro.classList.add('hidden');
-          app.classList.add('visible');
-          setTimeout(() => {
-            intro.style.display = 'none';
-            resolve();
-          }, 600);
-        }, 500);
-      }, 950);
+        intro.classList.add('hidden');
+        app.classList.add('visible');
+        setTimeout(() => { intro.style.display = 'none'; resolve(); }, 600);
+      }, 900);
     }, { once: true });
   });
 }
