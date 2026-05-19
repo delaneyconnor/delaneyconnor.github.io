@@ -102,27 +102,16 @@ function packLanes(entries) {
 }
 
 function buildRows(data) {
-  const rows        = [];
-  const aboveCats   = ['Work', 'Education', 'Writing'];
-  const belowCats   = ['Projects', 'Graphic Design'];
+  const rows   = [];
+  const packed = packLanes(data);
+  const numLanes = packed.length ? Math.max(...packed.map(r => r.lane)) + 1 : 0;
 
-  const abovePacked = packLanes(data.filter(d => aboveCats.includes(d.category)));
-  const belowPacked = packLanes(data.filter(d => belowCats.includes(d.category)));
-
-  const numAbove = abovePacked.length ? Math.max(...abovePacked.map(r => r.lane)) + 1 : 0;
-  const numBelow = belowPacked.length ? Math.max(...belowPacked.map(r => r.lane)) + 1 : 0;
-
-  abovePacked.forEach(({ entry, lane }) => {
+  packed.forEach(({ entry, lane }) => {
     rows.push({ entry, cat: entry.category, yOffset: -(AXIS_GAP + Math.round(ROW_H / 2) + lane * ROW_H) });
   });
-  belowPacked.forEach(({ entry, lane }) => {
-    rows.push({ entry, cat: entry.category, yOffset:  (AXIS_GAP + Math.round(ROW_H / 2) + lane * ROW_H) });
-  });
 
-  const spaceAbove = numAbove ? AXIS_GAP + ROW_H * numAbove : AXIS_GAP;
-  const spaceBelow = numBelow ? AXIS_GAP + ROW_H * numBelow : AXIS_GAP;
-
-  return { rows, spaceAbove, spaceBelow };
+  const spaceAbove = numLanes ? AXIS_GAP + ROW_H * numLanes : AXIS_GAP;
+  return { rows, spaceAbove, spaceBelow: PAD_V };
 }
 
 // ── Render ────────────────────────────────────────────────
@@ -144,8 +133,8 @@ function render() {
   const W      = (endY - startY) * 12 * PPM;
 
   const visH  = canvasWrap.clientHeight;
-  // Where we want the axis to appear in the viewport (matches intro line at 50vh)
-  const targetAxisY = Math.round(visH / 2) - 32;
+  // Axis anchored near the bottom so all entries read chronologically above it
+  const targetAxisY = visH - 60;
 
   const { rows, spaceAbove, spaceBelow } = filtered.length
     ? buildRows(filtered)
@@ -212,7 +201,7 @@ function render() {
       bar.appendChild(dotE);
     }
 
-    const lbl = el('span', 'bar-lbl' + (row.yOffset > 0 ? ' lbl-below' : ''));
+    const lbl = el('span', 'bar-lbl lbl-below');
     lbl.textContent = entry.title;
     bar.appendChild(lbl);
 
