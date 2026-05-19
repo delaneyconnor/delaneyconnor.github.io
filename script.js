@@ -195,9 +195,7 @@ function render() {
       bar.appendChild(lbl);
     }
 
-    bar.addEventListener('click',      e => { e.stopPropagation(); openFocus(entry); });
-    bar.addEventListener('mouseenter', e => { if (!focusedEntry) showTip(e, entry); });
-    bar.addEventListener('mouseleave', hideTip);
+    bar.addEventListener('click', e => { e.stopPropagation(); openFocus(entry); });
 
     canvas.appendChild(bar);
   });
@@ -209,39 +207,28 @@ function el(tag, cls) {
   return e;
 }
 
-// ── Tooltip ───────────────────────────────────────────────
-
-let tipEl = null;
-function showTip(e, entry) {
-  hideTip();
-  tipEl = el('div', 'tip');
-  tipEl.innerHTML =
-    `<strong>${entry.title}</strong>` +
-    `<span class="tip-date">${dateRange(entry)}</span>` +
-    (entry.short_description ? `<span class="tip-desc">${entry.short_description}</span>` : '');
-  document.body.appendChild(tipEl);
-  moveTip(e);
-}
-function moveTip(e) {
-  if (!tipEl) return;
-  const x = Math.min(e.clientX + 14, window.innerWidth  - tipEl.offsetWidth  - 8);
-  const y = Math.min(e.clientY + 14, window.innerHeight - tipEl.offsetHeight - 8);
-  tipEl.style.left = x + 'px';
-  tipEl.style.top  = y + 'px';
-}
-function hideTip() { if (tipEl) { tipEl.remove(); tipEl = null; } }
-document.addEventListener('mousemove', moveTip);
-
 // ── Focus / detail sheet ──────────────────────────────────
 
 function openFocus(entry) {
-  hideTip();
   focusedEntry = entry;
+
+  // Zoom so the entry's duration fills ~75% of the viewport width
+  const wrap     = document.getElementById('canvas-wrap');
+  const startM   = toMonths(entry.start_month, entry.start_year);
+  const endM     = entryEnd(entry);
+  const duration = Math.max(endM - startM + 1, 1);
+  PPM = Math.max(3, Math.min(60, (wrap.clientWidth * 0.75) / duration));
+  document.getElementById('zoom-slider').value = PPM;
   render();
+
+  // Scroll to center the entry horizontally
+  const originM  = (Math.floor(Math.min(...allData.map(d => toMonths(d.start_month, d.start_year))) / 12) - 2) * 12;
+  const barLeft  = (startM - originM) * PPM;
+  const barWidth = Math.max((endM - startM + 1) * PPM, 10);
+  wrap.scrollLeft = barLeft + barWidth / 2 - wrap.clientWidth / 2;
 
   const body  = document.getElementById('sheet-body');
   const color = CAT_COLORS[entry.category] || '#000';
-  const tags  = (entry.tags || '').split(',').map(t => t.trim()).filter(Boolean);
   const desc  = entry.long_description || entry.short_description || '';
 
   body.className = 'sheet-body';
@@ -253,7 +240,6 @@ function openFocus(entry) {
     ${entry.role ? `<div class="s-role">${entry.role}</div>` : ''}
     ${entry.image_1 ? `<img src="${entry.image_1}" alt="${entry.title}" class="s-img">` : ''}
     ${desc ? `<div class="s-desc">${desc.replace(/\n/g, '<br>')}</div>` : ''}
-    ${tags.length ? `<div class="s-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
     ${entry.external_link ? `<a href="${entry.external_link}" target="_blank" rel="noopener" class="s-link">${entry.external_link_label || 'View →'}</a>` : ''}
   `;
 
@@ -270,7 +256,6 @@ function closeFocus() {
 // ── About ─────────────────────────────────────────────────
 
 function openAbout() {
-  hideTip();
   focusedEntry = null;
   document.getElementById('canvas').classList.remove('focused');
 
