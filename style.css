@@ -300,22 +300,21 @@ body {
 .tip-date { color: #aaa; font-size: 0.65rem; display: block; }
 .tip-desc { color: #ccc; font-size: 0.67rem; display: block; margin-top: 2px; line-height: 1.4; }
 
-/* ── BOTTOM DETAIL SHEET ──────────────────────────────── */
+/* ── RIGHT DETAIL PANEL ───────────────────────────────── */
 .detail-sheet {
   position: absolute;
-  bottom: 0; left: 0; right: 0;
-  max-height: 46vh;
-  min-height: 180px;
+  top: var(--bar-h); right: 0; bottom: 0;
+  width: 340px;
   background: #fff;
-  border-top: 1.5px solid #000;
-  transform: translateY(100%);
-  transition: transform 0.24s ease;
+  border-left: 1.5px solid #000;
+  transform: translateX(100%);
+  transition: transform 0.28s ease;
   z-index: 50;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
-.detail-sheet.open { transform: translateY(0); }
+.detail-sheet.open { transform: translateX(0); }
 
 .sheet-bar {
   position: sticky;
@@ -340,11 +339,10 @@ body {
 .sheet-close:hover { opacity: 0.4; }
 
 .sheet-body {
-  padding: 1.1rem 1.5rem 2rem;
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 1.5rem;
-  align-items: start;
+  padding: 1.1rem 1.25rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 .sheet-left { display: flex; flex-direction: column; gap: 0.2rem; }
 
@@ -423,7 +421,7 @@ body {
   color: #777;
 }
 
-.sheet-body.about-mode { grid-template-columns: 1fr; }
+.sheet-body.about-mode { }
 .about-bio p {
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 0.84rem;
