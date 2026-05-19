@@ -165,7 +165,7 @@ function render() {
     if (left > W) continue;
     const tick = el('div', 'year-tick');
     tick.style.left = left + 'px';
-    tick.style.top  = (canvasAxisY - 22) + 'px';
+    tick.style.top  = (canvasAxisY + 10) + 'px';
     tick.textContent = y;
     canvas.appendChild(tick);
   }
@@ -394,18 +394,22 @@ function init() {
 // ── "View portfolio" — global so onclick="" attribute can call it ──
 
 function startPortfolio() {
+  const introLine = document.getElementById('intro-line');
   document.getElementById('intro-name').classList.add('fade');
   document.getElementById('view-btn').classList.add('fade');
-  document.getElementById('intro-line').classList.add('expand');
+  introLine.classList.add('expand');
 
-  // Timeline is centered — line stays at vertical center and becomes the axis
-  setTimeout(function () {
+  // After expansion, drop the line to the bottom where the axis lives
+  setTimeout(() => introLine.classList.add('drop'), 900);
+
+  // Then reveal the app (drop takes 0.5s, so 900 + 550 = 1450ms total)
+  setTimeout(() => {
     document.getElementById('intro').classList.add('hidden');
     document.getElementById('app').classList.add('visible');
-    setTimeout(function () {
+    setTimeout(() => {
       document.getElementById('intro').style.display = 'none';
     }, 600);
-  }, 900);
+  }, 1450);
 }
 
 init();

@@ -53,9 +53,10 @@ body {
   width: 72px;
   height: 6px;
   background: #000;
-  transition: width 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.85s cubic-bezier(0.4, 0, 0.2, 1), top 0.5s ease 0.9s;
 }
 .intro-line.expand { width: 100vw; }
+.intro-line.drop   { top: calc(100% - 60px); }
 
 /* Button sits 1.2rem below the horizontal center */
 .view-btn {
