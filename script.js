@@ -20,6 +20,7 @@ let PPM           = 10;
 let allData       = [];
 let activeFilters = new Set(CAT_ORDER);
 let focusedEntry  = null;
+let preserveScroll = false;
 
 // ── CSV ──────────────────────────────────────────────────
 
@@ -136,58 +137,74 @@ function render() {
   const W      = (endY - startY) * 12 * PPM;
 
   const visH  = canvasWrap.clientHeight;
+  // Where we want the axis to appear in the viewport (matches intro line at 50vh)
+  const targetAxisY = Math.round(visH / 2) - 32;
 
   const { rows, spaceAbove, spaceBelow } = filtered.length
     ? buildRows(filtered)
     : { rows: [], spaceAbove: 0, spaceBelow: 0 };
 
-  // Axis sits at 50vh when there's room; pushed down if too many entries above
-  const axisY = Math.max(Math.round(visH / 2) - 32, spaceAbove + PAD_V);
+  // Canvas axis position must have enough room above it for all entries
+  const canvasAxisY = Math.max(targetAxisY, spaceAbove + PAD_V);
   const showLabels = PPM >= LABEL_THRESHOLD;
 
   canvas.innerHTML = '';
-  canvas.style.cssText = `width:${W}px; height:${Math.max(visH, axisY + spaceBelow + PAD_V)}px; position:relative;`;
+  canvas.style.cssText = `width:${W}px; height:${Math.max(visH, canvasAxisY + spaceBelow + PAD_V)}px; position:relative;`;
   if (focusedEntry) canvas.classList.add('focused');
 
-  // Axis line — always present, matches the intro screen's expanding line
+  // Scroll so the axis appears at 50vh in the viewport (unless zoom is in progress)
+  if (!preserveScroll) {
+    canvasWrap.scrollTop = Math.max(0, canvasAxisY - targetAxisY);
+  }
+  preserveScroll = false;
+
+  // Axis line
   const axis = el('div', 'axis-line');
-  axis.style.cssText = `top:${axisY}px; width:${W}px;`;
+  axis.style.cssText = `top:${canvasAxisY}px; width:${W}px;`;
   canvas.appendChild(axis);
 
   // Year labels just above the axis
-  // All positions are relative to startY*12 (canvas origin) so 2017/2018 show correctly
   const originM = startY * 12;
   for (let y = startY; y <= endY; y++) {
     const left = (y * 12 - originM) * PPM;
     if (left > W) continue;
     const tick = el('div', 'year-tick');
     tick.style.left = left + 'px';
-    tick.style.top  = (axisY - 18) + 'px';
+    tick.style.top  = (canvasAxisY - 22) + 'px';
     tick.textContent = y;
     canvas.appendChild(tick);
   }
 
   // Entry lines branching above and below the axis
   rows.forEach(row => {
-    const entry  = row.entry;
-    const startM = toMonths(entry.start_month, entry.start_year);
-    const endM   = entryEnd(entry);
-    const left   = (startM - originM) * PPM;
-    const width  = Math.max((endM - startM + 1) * PPM, 10);
-    const top    = axisY + row.yOffset - Math.round(BAR_H / 2);
-    const color  = CAT_COLORS[entry.category] || '#888';
+    const entry   = row.entry;
+    const startM  = toMonths(entry.start_month, entry.start_year);
+    const endM    = entryEnd(entry);
+    const left    = (startM - originM) * PPM;
+    const durPx   = (endM - startM) * PPM;
+    const isPoint = !entry.end_year && !entry.end_month && durPx < 2; // single-date event
+    const width   = isPoint ? 0 : Math.max(durPx + PPM, 10);
+    const top     = canvasAxisY + row.yOffset - Math.round(BAR_H / 2);
+    const color   = CAT_COLORS[entry.category] || '#888';
 
-    const bar = el('div', 'bar');
+    const bar = el('div', isPoint ? 'bar point-only' : 'bar');
     bar.style.cssText = `left:${left}px; width:${width}px; top:${top}px;`;
     if (focusedEntry === entry) bar.classList.add('selected');
 
-    const dotS = el('div', 'dot dot-start');
-    dotS.style.background = color;
-    bar.appendChild(dotS);
+    if (isPoint) {
+      // Single dot at the event date
+      const dot = el('div', 'dot dot-start');
+      dot.style.background = color;
+      bar.appendChild(dot);
+    } else {
+      const dotS = el('div', 'dot dot-start');
+      dotS.style.background = color;
+      bar.appendChild(dotS);
 
-    const dotE = el('div', 'dot dot-end');
-    dotE.style.background = color;
-    bar.appendChild(dotE);
+      const dotE = el('div', 'dot dot-end');
+      dotE.style.background = color;
+      bar.appendChild(dotE);
+    }
 
     if (showLabels) {
       const lblCls = 'bar-lbl visible' + (row.yOffset > 0 ? ' lbl-below' : '');
@@ -197,7 +214,6 @@ function render() {
     }
 
     bar.addEventListener('click', e => { e.stopPropagation(); openFocus(entry); });
-
     canvas.appendChild(bar);
   });
 }
@@ -340,6 +356,7 @@ function zoomTo(newPPM) {
   const centerX = wrap.scrollLeft + wrap.clientWidth / 2;
   const ratio   = oldW > 0 ? centerX / oldW : 0.5;
   PPM = newPPM;
+  preserveScroll = true;
   render();
   const newW = parseFloat(canvas.style.width) || wrap.scrollWidth;
   wrap.scrollLeft = ratio * newW - wrap.clientWidth / 2;

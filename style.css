@@ -248,6 +248,8 @@ body {
   transition: opacity 0.28s ease;
 }
 .bar:hover { background: #bbb; z-index: 5; }
+.bar.point-only { background: transparent; }
+.bar.point-only:hover { background: transparent; }
 .bar::before {
   content: '';
   position: absolute;
