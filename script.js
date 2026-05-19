@@ -9,12 +9,11 @@ const CAT_COLORS = {
   'Graphic Design': '#FF9800',
 };
 
-const CAT_H   = 26;
-const ROW_H   = 40;
-const BAR_H   = 22;
-const PAD_V   = 20;
+const ROW_H   = 24;
+const BAR_H   = 2;
+const PAD_V   = 48;
 const CAT_GAP = 16;
-const LABEL_THRESHOLD = 10; // PPM at which bar labels appear
+const LABEL_THRESHOLD = 10;
 
 let PPM           = 10;
 let allData       = [];
@@ -83,7 +82,7 @@ function dateRange(entry) {
 
 function buildRows(data) {
   const rows = [];
-  let top = PAD_V;
+  let top = 0;
   let firstCat = true;
 
   CAT_ORDER.forEach(cat => {
@@ -96,66 +95,39 @@ function buildRows(data) {
     if (!firstCat) top += CAT_GAP;
     firstCat = false;
 
-    // Category header row
-    rows.push({ type: 'cat', cat, top, height: CAT_H });
-    top += CAT_H;
-
     entries.forEach(entry => {
       rows.push({ type: 'entry', entry, cat, top, height: ROW_H });
       top += ROW_H;
     });
   });
 
-  return { rows, totalHeight: top + PAD_V };
+  return { rows, contentHeight: top };
 }
 
 // ── Render ────────────────────────────────────────────────
 
 function render() {
-  const filtered = allData.filter(d => activeFilters.has(d.category));
-  const ruler    = document.getElementById('year-ruler');
-  const canvas   = document.getElementById('canvas');
+  const filtered   = allData.filter(d => activeFilters.has(d.category));
+  const canvas     = document.getElementById('canvas');
+  const canvasWrap = document.getElementById('canvas-wrap');
 
-  if (!filtered.length) {
-    ruler.innerHTML = canvas.innerHTML = '';
-    return;
-  }
+  if (!filtered.length) { canvas.innerHTML = ''; return; }
 
   const allStart = filtered.map(d => toMonths(d.start_month, d.start_year));
   const allEnd   = filtered.map(d => entryEnd(d));
-  const minM  = Math.min(...allStart);
-  const maxM  = Math.max(...allEnd);
+  const minM   = Math.min(...allStart);
+  const maxM   = Math.max(...allEnd);
   const startY = Math.floor(minM / 12);
   const endY   = Math.ceil((maxM + 1) / 12) + 1;
-  const W = (endY - startY) * 12 * PPM;
+  const W      = (endY - startY) * 12 * PPM;
 
-  const { rows, totalHeight } = buildRows(filtered);
+  const { rows, contentHeight } = buildRows(filtered);
+  const visH    = canvasWrap.clientHeight;
+  const offsetY = Math.max(PAD_V, Math.floor((visH - contentHeight) / 2));
   const showLabels = PPM >= LABEL_THRESHOLD;
 
-  // Year ruler
-  ruler.innerHTML = '';
-  ruler.style.width = W + 'px';
-  for (let y = startY; y <= endY; y++) {
-    const left = (y * 12 - minM) * PPM;
-    if (left < 0 || left > W) continue;
-    const tick = el('div', 'year-tick');
-    tick.style.left = left + 'px';
-    tick.textContent = y;
-    ruler.appendChild(tick);
-    if (PPM >= 5) {
-      for (let m = 1; m < 12; m++) {
-        const ml = (y * 12 + m - minM) * PPM;
-        if (ml >= W) break;
-        const mt = el('div', 'month-tick');
-        mt.style.left = ml + 'px';
-        ruler.appendChild(mt);
-      }
-    }
-  }
-
-  // Canvas
   canvas.innerHTML = '';
-  canvas.style.cssText = `width:${W}px; height:${totalHeight}px; position:relative;`;
+  canvas.style.cssText = `width:${W}px; height:${Math.max(visH, contentHeight + PAD_V * 2)}px; position:relative;`;
   if (focusedEntry) canvas.classList.add('focused');
 
   // Vertical year grid lines
@@ -167,31 +139,56 @@ function render() {
     canvas.appendChild(line);
   }
 
-  // Rows
-  rows.forEach(row => {
-    if (row.type === 'cat') {
-      // Subtle category stripe background
-      const stripe = el('div', 'cat-stripe');
-      stripe.style.cssText = `top:${row.top}px; height:${row.height}px;`;
-      canvas.appendChild(stripe);
-      return;
+  // Year labels and month ticks, floating just above the entry block
+  const tickY = Math.max(4, offsetY - 22);
+  for (let y = startY; y <= endY; y++) {
+    const left = (y * 12 - minM) * PPM;
+    if (left < 0 || left > W) continue;
+    const tick = el('div', 'year-tick');
+    tick.style.left = left + 'px';
+    tick.style.top  = tickY + 'px';
+    tick.textContent = y;
+    canvas.appendChild(tick);
+    if (PPM >= 5) {
+      for (let m = 1; m < 12; m++) {
+        const ml = (y * 12 + m - minM) * PPM;
+        if (ml >= W) break;
+        const mt = el('div', 'month-tick');
+        mt.style.left   = ml + 'px';
+        mt.style.top    = tickY + 'px';
+        mt.style.height = '8px';
+        canvas.appendChild(mt);
+      }
     }
+  }
 
+  // Entry rows
+  rows.forEach(row => {
     const entry  = row.entry;
     const startM = toMonths(entry.start_month, entry.start_year);
     const endM   = entryEnd(entry);
     const left   = (startM - minM) * PPM;
-    const width  = Math.max((endM - startM + 1) * PPM, 4);
-    const top    = row.top + Math.round((ROW_H - BAR_H) / 2);
+    const width  = Math.max((endM - startM + 1) * PPM, 10);
+    const top    = offsetY + row.top + Math.round((ROW_H - BAR_H) / 2);
     const color  = CAT_COLORS[entry.category] || '#888';
 
     const bar = el('div', 'bar');
-    bar.style.cssText = `left:${left}px; width:${width}px; top:${top}px; background:${color};`;
+    bar.style.cssText = `left:${left}px; width:${width}px; top:${top}px;`;
     if (focusedEntry === entry) bar.classList.add('selected');
 
-    const lbl = el('span', 'bar-lbl' + (showLabels ? ' visible' : ''));
-    lbl.textContent = entry.title;
-    bar.appendChild(lbl);
+    const dotS = el('div', 'dot dot-start');
+    dotS.style.background = color;
+    bar.appendChild(dotS);
+
+    const dotE = el('div', 'dot dot-end');
+    dotE.style.background = color;
+    bar.appendChild(dotE);
+
+    if (showLabels) {
+      const lbl = el('span', 'bar-lbl visible');
+      lbl.textContent = entry.title;
+      bar.appendChild(lbl);
+    }
 
     bar.addEventListener('click',      e => { e.stopPropagation(); openFocus(entry); });
     bar.addEventListener('mouseenter', e => { if (!focusedEntry) showTip(e, entry); });
@@ -328,12 +325,6 @@ function makeBtn(label, color, active) {
 
 function init() {
   const canvasWrap = document.getElementById('canvas-wrap');
-  const ruler      = document.getElementById('year-ruler');
-
-  // Ruler horizontal scroll sync
-  canvasWrap.addEventListener('scroll', () => {
-    ruler.style.transform = `translateX(-${canvasWrap.scrollLeft}px)`;
-  });
 
   // Zoom slider
   document.getElementById('zoom-slider').addEventListener('input', e => {
@@ -371,23 +362,13 @@ function startPortfolio() {
   document.getElementById('view-btn').classList.add('fade');
   document.getElementById('intro-line').classList.add('expand');
 
+  // Timeline is centered — line stays at vertical center and becomes the axis
   setTimeout(function () {
-    const line      = document.getElementById('intro-line');
-    const lineRect  = line.getBoundingClientRect();
-    const rulerRect = document.querySelector('.ruler-wrap').getBoundingClientRect();
-    // Align line center to ruler's bottom border
-    const lineCenterY   = lineRect.top + lineRect.height / 2;
-    const targetCenterY = rulerRect.bottom - lineRect.height / 2;
-    line.style.transform = 'translateY(' + (targetCenterY - lineCenterY) + 'px)';
-
-    // After line arrives, crossfade intro out and app in
+    document.getElementById('intro').classList.add('hidden');
+    document.getElementById('app').classList.add('visible');
     setTimeout(function () {
-      document.getElementById('intro').classList.add('hidden');
-      document.getElementById('app').classList.add('visible');
-      setTimeout(function () {
-        document.getElementById('intro').style.display = 'none';
-      }, 600);
-    }, 700);
+      document.getElementById('intro').style.display = 'none';
+    }, 600);
   }, 900);
 }
 
