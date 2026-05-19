@@ -67,8 +67,7 @@ body {
   color: #000;
   background: none;
   border: none;
-  border-bottom: 1px solid #000;
-  padding-bottom: 2px;
+  padding: 0;
   cursor: pointer;
   transition: opacity 0.3s;
 }

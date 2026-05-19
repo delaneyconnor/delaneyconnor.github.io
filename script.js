@@ -364,11 +364,11 @@ function init() {
     .catch(() => { allData = []; renderFilters(); render(); });
 }
 
-// ── "View portfolio" button — attached directly, no async wrapper ──
+// ── "View portfolio" — global so onclick="" attribute can call it ──
 
-document.getElementById('view-btn').addEventListener('click', function () {
+function startPortfolio() {
   document.getElementById('intro-name').classList.add('fade');
-  this.classList.add('fade');
+  document.getElementById('view-btn').classList.add('fade');
   document.getElementById('intro-line').classList.add('expand');
 
   setTimeout(function () {
@@ -378,6 +378,6 @@ document.getElementById('view-btn').addEventListener('click', function () {
       document.getElementById('intro').style.display = 'none';
     }, 600);
   }, 900);
-});
+}
 
 init();
