@@ -324,35 +324,9 @@ function makeBtn(label, color, active) {
   return b;
 }
 
-// ── Intro sequence ────────────────────────────────────────
-
-function runIntro() {
-  return new Promise(resolve => {
-    const introLine = document.getElementById('intro-line');
-    const introName = document.getElementById('intro-name');
-    const viewBtn   = document.getElementById('view-btn');
-    const intro     = document.getElementById('intro');
-    const app       = document.getElementById('app');
-
-    viewBtn.addEventListener('click', () => {
-      // Fade name + button, expand line simultaneously
-      introName.classList.add('fade');
-      viewBtn.classList.add('fade');
-      introLine.classList.add('expand');
-
-      // After line finishes expanding, cross-fade to timeline
-      setTimeout(() => {
-        intro.classList.add('hidden');
-        app.classList.add('visible');
-        setTimeout(() => { intro.style.display = 'none'; resolve(); }, 600);
-      }, 900);
-    }, { once: true });
-  });
-}
-
 // ── Init ──────────────────────────────────────────────────
 
-async function init() {
+function init() {
   const canvasWrap = document.getElementById('canvas-wrap');
   const ruler      = document.getElementById('year-ruler');
 
@@ -381,18 +355,29 @@ async function init() {
     if (focusedEntry) closeFocus();
   });
 
-  // Sheet close
   document.getElementById('sheet-close').addEventListener('click', closeFocus);
-
-  // About
   document.getElementById('about-btn').addEventListener('click', openAbout);
 
-  // Fetch data in parallel with waiting for user to click
+  // Fetch data as soon as the page loads
   fetchData()
     .then(data => { allData = data; renderFilters(); render(); })
     .catch(() => { allData = []; renderFilters(); render(); });
-
-  await runIntro();
 }
+
+// ── "View portfolio" button — attached directly, no async wrapper ──
+
+document.getElementById('view-btn').addEventListener('click', function () {
+  document.getElementById('intro-name').classList.add('fade');
+  this.classList.add('fade');
+  document.getElementById('intro-line').classList.add('expand');
+
+  setTimeout(function () {
+    document.getElementById('intro').classList.add('hidden');
+    document.getElementById('app').classList.add('visible');
+    setTimeout(function () {
+      document.getElementById('intro').style.display = 'none';
+    }, 600);
+  }, 900);
+});
 
 init();
