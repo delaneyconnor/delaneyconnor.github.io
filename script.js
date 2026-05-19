@@ -124,32 +124,36 @@ function render() {
   const canvas     = document.getElementById('canvas');
   const canvasWrap = document.getElementById('canvas-wrap');
 
-  if (!filtered.length) { canvas.innerHTML = ''; return; }
+  if (!allData.length) { canvas.innerHTML = ''; return; }
 
-  const allStart = filtered.map(d => toMonths(d.start_month, d.start_year));
-  const allEnd   = filtered.map(d => entryEnd(d));
+  // Always use the full dataset for the time range so the axis never shifts
+  const allStart = allData.map(d => toMonths(d.start_month, d.start_year));
+  const allEnd   = allData.map(d => entryEnd(d));
   const minM   = Math.min(...allStart);
   const maxM   = Math.max(...allEnd);
   const startY = Math.floor(minM / 12);
   const endY   = Math.ceil((maxM + 1) / 12) + 1;
   const W      = (endY - startY) * 12 * PPM;
 
-  const { rows, spaceAbove, spaceBelow } = buildRows(filtered);
-  const visH = canvasWrap.clientHeight;
-  // Axis at 50vh from viewport; shift down only if above content would clip
-  const axisY = Math.max(spaceAbove + PAD_V, Math.round(visH / 2) - 32);
+  const visH  = canvasWrap.clientHeight;
+  // Axis fixed at 50vh from viewport (intro line is also at 50vh)
+  const axisY = Math.round(visH / 2) - 32;
+
+  const { rows, spaceBelow } = filtered.length
+    ? buildRows(filtered)
+    : { rows: [], spaceBelow: 0 };
   const showLabels = PPM >= LABEL_THRESHOLD;
 
   canvas.innerHTML = '';
   canvas.style.cssText = `width:${W}px; height:${Math.max(visH, axisY + spaceBelow + PAD_V)}px; position:relative;`;
   if (focusedEntry) canvas.classList.add('focused');
 
-  // The axis line — visually continues the intro screen's expanding line
+  // Axis line — always present, matches the intro screen's expanding line
   const axis = el('div', 'axis-line');
   axis.style.cssText = `top:${axisY}px; width:${W}px;`;
   canvas.appendChild(axis);
 
-  // Year labels sit just above the axis
+  // Year labels just above the axis
   for (let y = startY; y <= endY; y++) {
     const left = (y * 12 - minM) * PPM;
     if (left < 0 || left > W) continue;
@@ -324,6 +328,18 @@ function makeBtn(label, color, active) {
   return b;
 }
 
+// ── Fit timeline to screen width ─────────────────────────
+
+function fitToWidth(data) {
+  const allStart = data.map(d => toMonths(d.start_month, d.start_year));
+  const allEnd   = data.map(d => entryEnd(d));
+  const startY   = Math.floor(Math.min(...allStart) / 12);
+  const endY     = Math.ceil((Math.max(...allEnd) + 1) / 12) + 1;
+  const months   = (endY - startY) * 12;
+  const w        = document.getElementById('canvas-wrap').clientWidth;
+  return Math.max(3, Math.min(60, w / months));
+}
+
 // ── Init ──────────────────────────────────────────────────
 
 function init() {
@@ -354,7 +370,13 @@ function init() {
 
   // Fetch data as soon as the page loads
   fetchData()
-    .then(data => { allData = data; renderFilters(); render(); })
+    .then(data => {
+      allData = data;
+      PPM = fitToWidth(data);
+      document.getElementById('zoom-slider').value = PPM;
+      renderFilters();
+      render();
+    })
     .catch(() => { allData = []; renderFilters(); render(); });
 }
 

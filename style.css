@@ -20,9 +20,6 @@ body {
 .intro {
   position: fixed;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: #fff;
   z-index: 200;
   transition: opacity 0.55s ease;
@@ -32,33 +29,41 @@ body {
   pointer-events: none;
 }
 
-.intro-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-}
-
+/* Name sits with its bottom 1.8rem above the horizontal center */
 .intro-name {
+  position: absolute;
+  bottom: calc(50% + 1.8rem);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 700;
   font-size: clamp(2.5rem, 8vw, 6rem);
   letter-spacing: 0.18em;
-  margin-bottom: 1.6rem;
   transition: opacity 0.35s ease;
 }
 .intro-name.fade { opacity: 0; }
 
+/* Line is pinned to exact 50vh — this IS the timeline axis */
 .intro-line {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 72px;
   height: 1.5px;
   background: #000;
-  transition: width 0.85s cubic-bezier(0.4, 0, 0.2, 1), transform 0.65s ease;
+  transition: width 0.85s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .intro-line.expand { width: 100vw; }
 
+/* Button sits 1.2rem below the horizontal center */
 .view-btn {
-  margin-top: 1.4rem;
+  position: absolute;
+  top: calc(50% + 1.2rem);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.62rem;
   font-weight: 400;
@@ -105,7 +110,7 @@ body {
 
 .site-name {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.88rem;
+  font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: 0.18em;
   white-space: nowrap;
