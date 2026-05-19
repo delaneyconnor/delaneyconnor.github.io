@@ -51,7 +51,7 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   width: 72px;
-  height: 3px;
+  height: 6px;
   background: #000;
   transition: width 0.85s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -231,7 +231,7 @@ body {
 
 .axis-line {
   position: absolute;
-  height: 3px;
+  height: 6px;
   background: #000;
   pointer-events: none;
 }
