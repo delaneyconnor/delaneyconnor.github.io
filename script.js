@@ -251,6 +251,11 @@ function closeFocus() {
   document.getElementById('canvas').classList.remove('focused');
   document.getElementById('detail-sheet').classList.remove('open');
   document.querySelectorAll('.bar.selected').forEach(b => b.classList.remove('selected'));
+  if (allData.length) {
+    PPM = fitToWidth(allData);
+    document.getElementById('zoom-slider').value = PPM;
+    render();
+  }
 }
 
 // ── About ─────────────────────────────────────────────────
