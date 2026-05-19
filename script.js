@@ -123,7 +123,8 @@ function render() {
 
   const { rows, contentHeight } = buildRows(filtered);
   const visH    = canvasWrap.clientHeight;
-  const offsetY = Math.max(PAD_V, Math.floor((visH - contentHeight) / 2));
+  // Subtract half the top-bar height (32px) so the block centers at 50vh, matching the intro line
+  const offsetY = Math.max(PAD_V, Math.floor((visH - contentHeight) / 2) - 32);
   const showLabels = PPM >= LABEL_THRESHOLD;
 
   canvas.innerHTML = '';
