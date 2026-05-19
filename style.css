@@ -304,7 +304,7 @@ body {
 .detail-sheet {
   position: absolute;
   top: var(--bar-h); right: 0; bottom: 0;
-  width: 340px;
+  width: 50vw;
   background: #fff;
   border-left: 1.5px solid #000;
   transform: translateX(100%);
