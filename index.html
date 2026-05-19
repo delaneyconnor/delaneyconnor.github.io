@@ -1,80 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Delaney Connor - Portfolio">
-    <title>Delaney Connor | Portfolio</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Delaney Connor — Designer, Researcher, Urban Strategist">
+  <title>Delaney Connor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="#home" class="nav-logo">DC</a>
-            <ul class="nav-menu">
-                <li><a href="#home" class="nav-link">Home</a></li>
-                <li><a href="#about" class="nav-link">About</a></li>
-                <li><a href="#projects" class="nav-link">Projects</a></li>
-                <li><a href="#contact" class="nav-link">Contact</a></li>
-            </ul>
-        </div>
-    </nav>
 
-    <!-- Hero Section -->
-    <section id="home" class="hero">
-        <div class="hero-content">
-            <h1 class="hero-title">Hi, I'm Delaney Connor</h1>
-            <p class="hero-subtitle">Welcome to my portfolio</p>
-            <a href="#projects" class="cta-button">View My Work</a>
-        </div>
-    </section>
+  <header class="top-bar">
+    <button class="site-name" id="about-btn">DELANEY CONNOR</button>
+    <div class="header-right">
+      <div id="filter-bar" class="filter-bar"></div>
+      <div class="zoom-wrap">
+        <span class="zoom-icon" title="Zoom out">−</span>
+        <input type="range" id="zoom-slider" min="3" max="60" step="0.5" value="10">
+        <span class="zoom-icon" title="Zoom in">+</span>
+      </div>
+    </div>
+  </header>
 
-    <!-- About Section -->
-    <section id="about" class="about">
-        <div class="container">
-            <h2 class="section-title">About Me</h2>
-            <div class="about-content">
-                <p>I'm passionate about creating and learning new things. This portfolio showcases my journey and projects.</p>
-                <p>Currently exploring web development and building my skills one project at a time.</p>
-            </div>
-        </div>
-    </section>
+  <div class="timeline-shell">
+    <div class="corner">
+      <span class="corner-hint">ctrl+scroll to zoom</span>
+    </div>
+    <div class="ruler-wrap">
+      <div id="year-ruler" class="year-ruler"></div>
+    </div>
+    <div class="labels-wrap">
+      <div id="row-labels" class="row-labels"></div>
+    </div>
+    <div id="canvas-wrap" class="canvas-wrap">
+      <div id="canvas" class="canvas"></div>
+    </div>
+  </div>
 
-    <!-- Projects Section -->
-    <section id="projects" class="projects">
-        <div class="container">
-            <h2 class="section-title">Projects</h2>
-            <div class="projects-grid">
-                <div class="project-card">
-                    <h3>Portfolio Website</h3>
-                    <p>My personal portfolio built with HTML, CSS, and JavaScript. A project to learn web development fundamentals.</p>
-                    <div class="project-links">
-                        <a href="https://github.com/delaneyconnor/delaneyconnor.github.io" target="_blank" class="project-link">View Code</a>
-                    </div>
-                </div>
-                <!-- Add more project cards as you build more projects -->
-            </div>
-        </div>
-    </section>
+  <aside id="detail-panel" class="detail-panel">
+    <button id="detail-close" class="detail-close">×</button>
+    <div id="detail-body" class="detail-body"></div>
+  </aside>
 
-    <!-- Contact Section -->
-    <section id="contact" class="contact">
-        <div class="container">
-            <h2 class="section-title">Get In Touch</h2>
-            <p class="contact-intro">I'd love to hear from you!</p>
-            <div class="contact-links">
-                <a href="https://github.com/delaneyconnor" target="_blank" class="contact-button">GitHub</a>
-                <a href="mailto:your.email@example.com" class="contact-button">Email</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <p>&copy; 2025 Delaney Connor. Built with HTML, CSS & JavaScript.</p>
-    </footer>
-
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
