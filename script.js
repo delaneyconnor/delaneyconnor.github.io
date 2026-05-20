@@ -21,6 +21,18 @@ let allData       = [];
 let activeFilters = new Set(CAT_ORDER);
 let focusedEntry  = null;
 let preserveScroll = false;
+let pendingHash   = '';
+
+function toSlug(str) {
+  return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function resolveHash(hash) {
+  if (!hash) return;
+  if (hash === 'about') { openAbout(); return; }
+  const match = allData.find(d => toSlug(d.title) === hash);
+  if (match) openFocus(match);
+}
 
 // ── CSV ──────────────────────────────────────────────────
 
@@ -249,6 +261,7 @@ function openFocus(entry) {
   }
 
   document.getElementById('detail-sheet').classList.add('open');
+  history.replaceState(null, '', '#' + toSlug(entry.title));
 }
 
 function closeFocus() {
@@ -256,6 +269,7 @@ function closeFocus() {
   document.getElementById('canvas').classList.remove('focused');
   document.getElementById('detail-sheet').classList.remove('open');
   document.querySelectorAll('.bar.selected').forEach(b => b.classList.remove('selected'));
+  history.replaceState(null, '', location.pathname + location.search);
   if (allData.length) {
     PPM = fitToWidth(allData);
     document.getElementById('zoom-slider').value = PPM;
@@ -287,6 +301,7 @@ function openAbout() {
   `;
 
   document.getElementById('detail-sheet').classList.add('open');
+  history.replaceState(null, '', '#about');
 }
 
 // ── Filters ───────────────────────────────────────────────
@@ -402,6 +417,7 @@ function init() {
       slider.value = PPM;
       renderFilters();
       render();
+      pendingHash = location.hash.slice(1);
     })
     .catch(() => { allData = []; renderFilters(); render(); });
 }
@@ -424,6 +440,10 @@ function startPortfolio() {
     setTimeout(() => {
       document.getElementById('intro').style.display = 'none';
     }, 600);
+    if (pendingHash) {
+      const h = pendingHash; pendingHash = '';
+      resolveHash(h);
+    }
   }, 1450);
 }
 
