@@ -188,7 +188,7 @@ function render() {
       bar.appendChild(dotE);
     }
 
-    const lbl = el('span', 'bar-lbl lbl-below');
+    const lbl = el('span', 'bar-lbl');
     lbl.textContent = entry.title;
     bar.appendChild(lbl);
 
