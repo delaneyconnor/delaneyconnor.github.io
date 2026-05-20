@@ -263,6 +263,7 @@ function openAbout() {
   const body = document.getElementById('sheet-body');
   body.className = 'sheet-body about-mode';
   body.innerHTML = `
+    <img src="images/dc_headshot.png" alt="Delaney Connor" class="s-img">
     <div class="about-bio">
       <p>Delaney Connor is an urban designer and community organizer whose work examines how the built environment shapes collective life. Originally from Seattle, she completed her undergraduate studies in New Orleans, where she developed interests in creative resistance and the spatial politics of displacement.</p>
       <p>She then spent several years in Bozeman, Montana, working on homelessness and legal reform—experiences that ground her commitment to research methods centering community knowledge and reciprocity.</p>
