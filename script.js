@@ -287,10 +287,18 @@ function renderFilters() {
   bar.appendChild(allBtn);
 
   CAT_ORDER.forEach(cat => {
+    const isolated = activeFilters.size === 1 && activeFilters.has(cat);
     const b = makeBtn(cat, CAT_COLORS[cat], activeFilters.has(cat));
     b.addEventListener('click', () => {
       focusedEntry = null;
-      activeFilters.has(cat) ? activeFilters.delete(cat) : activeFilters.add(cat);
+      if (isolated) {
+        // Already isolated — clicking again restores all
+        CAT_ORDER.forEach(c => activeFilters.add(c));
+      } else {
+        // Isolate this category
+        CAT_ORDER.forEach(c => activeFilters.delete(c));
+        activeFilters.add(cat);
+      }
       renderFilters(); render();
     });
     bar.appendChild(b);
