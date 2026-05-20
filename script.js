@@ -83,16 +83,16 @@ function dateRange(entry) {
 // ── Build rows ────────────────────────────────────────────
 // Work / Education / Writing fan above the axis; Projects / Graphic Design below
 
-function buildRows(data) {
+function buildRows(data, rowH) {
   const sorted = [...data].sort((a, b) =>
     toMonths(a.start_month, a.start_year) - toMonths(b.start_month, b.start_year)
   );
   const rows = sorted.map((entry, i) => ({
     entry,
     cat: entry.category,
-    yOffset: -(AXIS_GAP + Math.round(ROW_H / 2) + i * ROW_H),
+    yOffset: -(AXIS_GAP + Math.round(rowH / 2) + i * rowH),
   }));
-  const spaceAbove = sorted.length ? AXIS_GAP + ROW_H * sorted.length : AXIS_GAP;
+  const spaceAbove = sorted.length ? AXIS_GAP + rowH * sorted.length : AXIS_GAP;
   return { rows, spaceAbove, spaceBelow: PAD_V };
 }
 
@@ -118,15 +118,20 @@ function render() {
   // Axis anchored near the bottom so all entries read chronologically above it
   const targetAxisY = visH - 60;
 
-  const { rows, spaceAbove, spaceBelow } = filtered.length
-    ? buildRows(filtered)
-    : { rows: [], spaceAbove: 0, spaceBelow: 0 };
+  const numEntries = filtered.length;
+  const dynamicRowH = numEntries > 0
+    ? Math.max(12, Math.floor((targetAxisY - AXIS_GAP - PAD_V) / numEntries))
+    : ROW_H;
+
+  const { rows, spaceAbove } = numEntries
+    ? buildRows(filtered, dynamicRowH)
+    : { rows: [], spaceAbove: 0 };
 
   // Canvas axis position must have enough room above it for all entries
   const canvasAxisY = Math.max(targetAxisY, spaceAbove + PAD_V);
 
   canvas.innerHTML = '';
-  canvas.style.cssText = `width:${W}px; height:${Math.max(visH, canvasAxisY + spaceBelow + PAD_V)}px; position:relative;`;
+  canvas.style.cssText = `width:${W}px; height:${canvasAxisY + 40}px; position:relative;`;
   if (focusedEntry) canvas.classList.add('focused');
 
   // Scroll so the axis appears at 50vh in the viewport (unless zoom is in progress)
