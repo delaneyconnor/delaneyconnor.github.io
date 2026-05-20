@@ -334,6 +334,10 @@ function fitToWidth(data) {
   return Math.max(3, Math.min(60, w / months));
 }
 
+function minPPM() {
+  return allData.length ? fitToWidth(allData) : 3;
+}
+
 // ── Init ──────────────────────────────────────────────────
 
 // Zoom keeping the viewport center pinned to the same calendar position
@@ -343,7 +347,7 @@ function zoomTo(newPPM) {
   const oldW   = parseFloat(canvas.style.width) || wrap.scrollWidth;
   const centerX = wrap.scrollLeft + wrap.clientWidth / 2;
   const ratio   = oldW > 0 ? centerX / oldW : 0.5;
-  PPM = newPPM;
+  PPM = Math.max(minPPM(), newPPM);
   preserveScroll = true;
   render();
   const newW = parseFloat(canvas.style.width) || wrap.scrollWidth;
@@ -355,14 +359,16 @@ function init() {
 
   // Zoom slider
   document.getElementById('zoom-slider').addEventListener('input', e => {
-    zoomTo(+e.target.value);
+    const val = Math.max(minPPM(), +e.target.value);
+    e.target.value = val;
+    zoomTo(val);
   });
 
   // Ctrl/Cmd + scroll = zoom
   canvasWrap.addEventListener('wheel', e => {
     if (!e.ctrlKey && !e.metaKey) return;
     e.preventDefault();
-    const newPPM = Math.max(3, Math.min(60, PPM + (e.deltaY < 0 ? 1.5 : -1.5)));
+    const newPPM = Math.max(minPPM(), Math.min(60, PPM + (e.deltaY < 0 ? 1.5 : -1.5)));
     document.getElementById('zoom-slider').value = newPPM;
     zoomTo(newPPM);
   }, { passive: false });
@@ -380,7 +386,9 @@ function init() {
     .then(data => {
       allData = data;
       PPM = fitToWidth(data);
-      document.getElementById('zoom-slider').value = PPM;
+      const slider = document.getElementById('zoom-slider');
+      slider.min = PPM;
+      slider.value = PPM;
       renderFilters();
       render();
     })
