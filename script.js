@@ -227,17 +227,26 @@ function openFocus(entry) {
   const color = CAT_COLORS[entry.category] || '#000';
   const desc  = entry.long_description || entry.short_description || '';
 
-  body.className = 'sheet-body';
-  body.innerHTML = `
+  const textCol = `
     <div class="s-cat" style="color:${color}">${entry.category.toUpperCase()}</div>
     <div class="s-title">${entry.title}</div>
     <div class="s-date">${dateRange(entry)}</div>
     ${entry.organization ? `<div class="s-org">${entry.organization}${entry.location ? ' &middot; ' + entry.location : ''}</div>` : ''}
     ${entry.role ? `<div class="s-role">${entry.role}</div>` : ''}
-    ${entry.image_1 ? `<img src="${entry.image_1}" alt="${entry.title}" class="s-img">` : ''}
     ${desc ? `<div class="s-desc">${desc.replace(/\n/g, '<br>')}</div>` : ''}
     ${entry.external_link ? `<a href="${entry.external_link}" target="_blank" rel="noopener" class="s-link">${entry.external_link_label || 'View →'}</a>` : ''}
   `;
+
+  if (entry.image_1) {
+    body.className = 'sheet-body two-col';
+    body.innerHTML = `
+      <div class="sheet-img-col"><img src="${entry.image_1}" alt="${entry.title}"></div>
+      <div class="sheet-text-col">${textCol}</div>
+    `;
+  } else {
+    body.className = 'sheet-body';
+    body.innerHTML = textCol;
+  }
 
   document.getElementById('detail-sheet').classList.add('open');
 }
@@ -261,17 +270,19 @@ function openAbout() {
   document.getElementById('canvas').classList.remove('focused');
 
   const body = document.getElementById('sheet-body');
-  body.className = 'sheet-body about-mode';
+  body.className = 'sheet-body two-col';
   body.innerHTML = `
-    <img src="images/dc_headshot.png" alt="Delaney Connor" class="s-img">
-    <div class="about-bio">
-      <p>Delaney Connor is an urban designer and community organizer whose work examines how the built environment shapes collective life. Originally from Seattle, she completed her undergraduate studies in New Orleans, where she developed interests in creative resistance and the spatial politics of displacement.</p>
-      <p>She then spent several years in Bozeman, Montana, working on homelessness and legal reform—experiences that ground her commitment to research methods centering community knowledge and reciprocity.</p>
-      <p>Connor is currently completing a Master's in Design and Urban Ecologies at Parsons School of Design, where her thesis examines block associations in Bedford-Stuyvesant. Her research interests include solidarity infrastructure, political subjectivity, and block-level organizing. Outside her studies, she enjoys cooking large pots of soup and exploring NYC by bicycle.</p>
-    </div>
-    <div class="about-links">
-      <a href="mailto:delaneyconnor1@gmail.com" class="s-link">delaneyconnor1@gmail.com</a>
-      <a href="https://linkedin.com/in/delaney-connor" target="_blank" rel="noopener" class="s-link">LinkedIn →</a>
+    <div class="sheet-img-col"><img src="images/dc_headshot.png" alt="Delaney Connor"></div>
+    <div class="sheet-text-col">
+      <div class="about-bio">
+        <p>Delaney Connor is an urban designer and community organizer whose work examines how the built environment shapes collective life. Originally from Seattle, she completed her undergraduate studies in New Orleans, where she developed interests in creative resistance and the spatial politics of displacement.</p>
+        <p>She then spent several years in Bozeman, Montana, working on homelessness and legal reform—experiences that ground her commitment to research methods centering community knowledge and reciprocity.</p>
+        <p>Connor is currently completing a Master's in Design and Urban Ecologies at Parsons School of Design, where her thesis examines block associations in Bedford-Stuyvesant. Her research interests include solidarity infrastructure, political subjectivity, and block-level organizing. Outside her studies, she enjoys cooking large pots of soup and exploring NYC by bicycle.</p>
+      </div>
+      <div class="about-links">
+        <a href="mailto:delaneyconnor1@gmail.com" class="s-link">delaneyconnor1@gmail.com</a>
+        <a href="https://linkedin.com/in/delaney-connor" target="_blank" rel="noopener" class="s-link">LinkedIn →</a>
+      </div>
     </div>
   `;
 

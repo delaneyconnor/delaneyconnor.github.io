@@ -301,21 +301,19 @@ body {
 .detail-sheet {
   position: absolute;
   top: var(--bar-h); right: 0; bottom: 0;
-  width: 50vw;
+  width: 65vw;
   background: #fff;
   border-left: 1.5px solid #000;
   transform: translateX(100%);
   transition: transform 0.28s ease;
   z-index: 50;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 .detail-sheet.open { transform: translateX(0); }
 
 .sheet-bar {
-  position: sticky;
-  top: 0;
   background: #fff;
   border-bottom: 1px solid #eee;
   padding: 0.35rem 0.9rem;
@@ -335,13 +333,43 @@ body {
 }
 .sheet-close:hover { opacity: 0.4; }
 
+/* single-column default */
 .sheet-body {
+  flex: 1;
+  min-height: 0;
   padding: 1.1rem 1.25rem 2rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  overflow-y: auto;
 }
-.sheet-left { display: flex; flex-direction: column; gap: 0.2rem; }
+
+/* two-column: photo left, text right */
+.sheet-body.two-col {
+  flex-direction: row;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+}
+.sheet-img-col {
+  flex: 0 0 45%;
+  overflow: hidden;
+  border-right: 1px solid #eee;
+}
+.sheet-img-col img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.sheet-text-col {
+  flex: 1;
+  padding: 1.5rem 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  overflow-y: auto;
+}
 
 .s-cat {
   font-family: 'IBM Plex Mono', monospace;
@@ -389,14 +417,6 @@ body {
 }
 .s-link:hover { opacity: 0.5; }
 
-.s-img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  display: block;
-  margin-bottom: 0.9rem;
-}
-
 .s-desc {
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 0.95rem;
@@ -405,7 +425,6 @@ body {
   color: #000;
 }
 
-.sheet-body.about-mode { }
 .about-bio p {
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 0.84rem;
