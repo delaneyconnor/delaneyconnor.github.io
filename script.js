@@ -264,9 +264,9 @@ function openAbout() {
   body.className = 'sheet-body about-mode';
   body.innerHTML = `
     <div class="about-bio">
-      <p>Delaney Connor is a Master's candidate in Design and Urban Ecologies at The New School, where her research examines how public space and infrastructure can foster deeper connections, civic engagement, and self-determination.</p>
-      <p>Delaney is a designer, researcher, and urban strategist dedicated to finding solutions that center community power and needs. Her work prioritizes participatory design, collective ownership, and the importance of involving voices historically excluded from the planning and decision-making process.</p>
-      <p>Before moving to New York, Delaney worked in Bozeman, Montana. Originally from Seattle, her undergraduate background transpired in New Orleans where she found inspiration in the unique modes of community resilience and creative forms of resistance.</p>
+      <p>Delaney Connor is an urban designer and community organizer whose work examines how the built environment shapes collective life. Originally from Seattle, she completed her undergraduate studies in New Orleans, where she developed interests in creative resistance and the spatial politics of displacement.</p>
+      <p>She then spent several years in Bozeman, Montana, working on homelessness and legal reform—experiences that ground her commitment to research methods centering community knowledge and reciprocity.</p>
+      <p>Connor is currently completing a Master's in Design and Urban Ecologies at Parsons School of Design, where her thesis examines block associations in Bedford-Stuyvesant. Her research interests include solidarity infrastructure, political subjectivity, and block-level organizing. Outside her studies, she enjoys cooking large pots of soup and exploring NYC by bicycle.</p>
     </div>
     <div class="about-links">
       <a href="mailto:delaneyconnor1@gmail.com" class="s-link">delaneyconnor1@gmail.com</a>
