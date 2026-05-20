@@ -160,7 +160,7 @@ function render() {
     const left    = (startM - originM) * PPM;
     const isPoint = !entry.end_year && !entry.end_month;
     const durPx   = isPoint ? 0 : (endM - startM) * PPM;
-    const width   = isPoint ? 0 : Math.max(durPx + PPM, 10);
+    const width   = isPoint ? 14 : Math.max(durPx + PPM, 10);
     const top     = canvasAxisY + row.yOffset - Math.round(BAR_H / 2);
     const color   = CAT_COLORS[entry.category] || '#888';
 
