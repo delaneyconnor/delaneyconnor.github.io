@@ -356,7 +356,7 @@ body {
 }
 .s-title {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 1.5rem;
+  font-size: 1.65rem;
   font-weight: 700;
   line-height: 1.2;
   color: #000;
@@ -368,7 +368,7 @@ body {
 }
 .s-meta {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.85rem;
+  font-size: 0.94rem;
   font-weight: 400;
   color: #000;
 }
