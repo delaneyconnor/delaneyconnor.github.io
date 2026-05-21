@@ -239,7 +239,7 @@ function openFocus(entry) {
   const desc  = entry.long_description || entry.short_description || '';
 
   const textCol = `
-    <div class="s-cat" style="color:${color}">${entry.category.toUpperCase()}</div>
+    <div class="s-cat"><span class="filter-dot" style="background:${color}; border-color:${color}"></span>${entry.category.toUpperCase()}</div>
     <div class="s-title">${entry.title}</div>
     <div class="s-date">${dateRange(entry)}</div>
     ${entry.organization ? `<div class="s-org">${entry.organization}${entry.location ? ' &middot; ' + entry.location : ''}</div>` : ''}
