@@ -349,16 +349,10 @@ body {
   overflow-y: auto;
 }
 
-.s-cat {
+.s-title-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #000;
+  gap: 8px;
 }
 .s-title {
   font-family: 'IBM Plex Mono', monospace;
