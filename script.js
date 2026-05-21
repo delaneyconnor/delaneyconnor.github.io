@@ -325,7 +325,7 @@ function renderFilters() {
   bar.innerHTML = '';
 
   const allActive = activeFilters.size === CAT_ORDER.length;
-  const allBtn = makeBtn('all', null, allActive);
+  const allBtn = makeBtn('All', null, allActive);
   allBtn.addEventListener('click', () => {
     dismissPanel();
     CAT_ORDER.forEach(c => activeFilters.add(c));
