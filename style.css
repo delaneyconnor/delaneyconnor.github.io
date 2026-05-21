@@ -136,7 +136,7 @@ body {
   display: flex;
   gap: 0.35rem;
   flex-wrap: nowrap;
-  overflow-x: auto;
+  overflow-x: clip;
   flex: 1;
   scrollbar-width: none;
 }
