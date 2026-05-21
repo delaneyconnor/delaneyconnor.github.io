@@ -296,7 +296,7 @@ body {
 
 .sheet-close {
   position: absolute;
-  bottom: 1.75rem;
+  top: 1.75rem;
   left: 1.75rem;
   background: none;
   border: none;
@@ -340,6 +340,12 @@ body {
   flex: 1;
   object-fit: cover;
   display: block;
+  min-height: 0;
+}
+.sheet-img-placeholder {
+  width: 100%;
+  flex: 1;
+  background: #ebebeb;
   min-height: 0;
 }
 .sheet-text-col {

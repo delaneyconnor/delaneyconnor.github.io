@@ -250,16 +250,15 @@ function openFocus(entry) {
     ${entry.external_link ? `<a href="${entry.external_link}" target="_blank" rel="noopener" class="s-link">${entry.external_link_label || 'View →'}</a>` : ''}
   `;
 
-  if (entry.image_1) {
-    body.className = 'sheet-body two-col';
-    body.innerHTML = `
-      <div class="sheet-img-col"><img src="${entry.image_1}" alt="${entry.title}"></div>
-      <div class="sheet-text-col">${textCol}</div>
-    `;
-  } else {
-    body.className = 'sheet-body';
-    body.innerHTML = textCol;
-  }
+  const imgHtml = entry.image_1
+    ? `<img src="${entry.image_1}" alt="${entry.title}">`
+    : `<div class="sheet-img-placeholder"></div>`;
+
+  body.className = 'sheet-body two-col';
+  body.innerHTML = `
+    <div class="sheet-img-col">${imgHtml}</div>
+    <div class="sheet-text-col">${textCol}</div>
+  `;
 
   document.getElementById('detail-sheet').classList.add('open');
   history.replaceState(null, '', '#' + toSlug(entry.title));
