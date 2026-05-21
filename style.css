@@ -361,6 +361,11 @@ body {
   line-height: 1.2;
   color: #000;
 }
+.s-meta-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
 .s-meta {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.75rem;

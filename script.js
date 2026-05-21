@@ -240,10 +240,12 @@ function openFocus(entry) {
 
   const textCol = `
     <div class="s-title-row"><span class="filter-dot" style="background:${color}"></span><div class="s-title">${entry.title}</div></div>
-    ${entry.role         ? `<div class="s-meta">${entry.role}</div>` : ''}
-    ${entry.organization ? `<div class="s-meta">${entry.organization}</div>` : ''}
-    <div class="s-meta">${dateRange(entry)}</div>
-    ${entry.location     ? `<div class="s-meta">${entry.location}</div>` : ''}
+    <div class="s-meta-group">
+      ${entry.role         ? `<div class="s-meta">${entry.role}</div>` : ''}
+      ${entry.organization ? `<div class="s-meta">${entry.organization}</div>` : ''}
+      <div class="s-meta">${dateRange(entry)}</div>
+      ${entry.location     ? `<div class="s-meta">${entry.location}</div>` : ''}
+    </div>
     ${desc ? `<div class="s-desc">${desc.replace(/\n/g, '<br>')}</div>` : ''}
     ${entry.external_link ? `<a href="${entry.external_link}" target="_blank" rel="noopener" class="s-link">${entry.external_link_label || 'View →'}</a>` : ''}
   `;
