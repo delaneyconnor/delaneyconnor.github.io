@@ -277,6 +277,21 @@ function closeFocus() {
   }
 }
 
+// Close panel without triggering its own render (caller will render after)
+function dismissPanel() {
+  const sheet = document.getElementById('detail-sheet');
+  if (!sheet.classList.contains('open')) return;
+  focusedEntry = null;
+  document.getElementById('canvas').classList.remove('focused');
+  sheet.classList.remove('open');
+  document.querySelectorAll('.bar.selected').forEach(b => b.classList.remove('selected'));
+  history.replaceState(null, '', location.pathname + location.search);
+  if (allData.length) {
+    PPM = fitToWidth(allData);
+    document.getElementById('zoom-slider').value = PPM;
+  }
+}
+
 // ── About ─────────────────────────────────────────────────
 
 function openAbout() {
@@ -313,6 +328,7 @@ function renderFilters() {
   const allActive = activeFilters.size === CAT_ORDER.length;
   const allBtn = makeBtn('ALL', null, allActive);
   allBtn.addEventListener('click', () => {
+    dismissPanel();
     CAT_ORDER.forEach(c => activeFilters.add(c));
     renderFilters(); render();
   });
@@ -322,12 +338,10 @@ function renderFilters() {
     const isolated = activeFilters.size === 1 && activeFilters.has(cat);
     const b = makeBtn(cat, CAT_COLORS[cat], activeFilters.has(cat));
     b.addEventListener('click', () => {
-      focusedEntry = null;
+      dismissPanel();
       if (isolated) {
-        // Already isolated — clicking again restores all
         CAT_ORDER.forEach(c => activeFilters.add(c));
       } else {
-        // Isolate this category
         CAT_ORDER.forEach(c => activeFilters.delete(c));
         activeFilters.add(cat);
       }
