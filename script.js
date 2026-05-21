@@ -226,7 +226,6 @@ function openFocus(entry) {
   const endM     = entryEnd(entry);
   const duration = Math.max(endM - startM + 1, 1);
   PPM = Math.max(3, Math.min(60, (wrap.clientWidth * 0.75) / duration));
-  document.getElementById('zoom-slider').value = PPM;
   render();
 
   // Scroll to center the entry horizontally
@@ -272,7 +271,6 @@ function closeFocus() {
   history.replaceState(null, '', location.pathname + location.search);
   if (allData.length) {
     PPM = fitToWidth(allData);
-    document.getElementById('zoom-slider').value = PPM;
     render();
   }
 }
@@ -288,7 +286,6 @@ function dismissPanel() {
   history.replaceState(null, '', location.pathname + location.search);
   if (allData.length) {
     PPM = fitToWidth(allData);
-    document.getElementById('zoom-slider').value = PPM;
   }
 }
 
@@ -397,19 +394,11 @@ function zoomTo(newPPM) {
 function init() {
   const canvasWrap = document.getElementById('canvas-wrap');
 
-  // Zoom slider
-  document.getElementById('zoom-slider').addEventListener('input', e => {
-    const val = Math.max(minPPM(), +e.target.value);
-    e.target.value = val;
-    zoomTo(val);
-  });
-
   // Ctrl/Cmd + scroll = zoom
   canvasWrap.addEventListener('wheel', e => {
     if (!e.ctrlKey && !e.metaKey) return;
     e.preventDefault();
     const newPPM = Math.max(minPPM(), Math.min(60, PPM + (e.deltaY < 0 ? 1.5 : -1.5)));
-    document.getElementById('zoom-slider').value = newPPM;
     zoomTo(newPPM);
   }, { passive: false });
 
@@ -426,9 +415,6 @@ function init() {
     .then(data => {
       allData = data;
       PPM = fitToWidth(data);
-      const slider = document.getElementById('zoom-slider');
-      slider.min = PPM;
-      slider.value = PPM;
       renderFilters();
       render();
       pendingHash = location.hash.slice(1);

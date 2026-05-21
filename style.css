@@ -174,24 +174,6 @@ body {
 
 .filter-lbl { line-height: 1; }
 
-.zoom-wrap {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-shrink: 0;
-}
-.zoom-icon {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.9rem;
-  color: #aaa;
-  line-height: 1;
-  user-select: none;
-}
-#zoom-slider {
-  width: 70px;
-  accent-color: #000;
-  cursor: pointer;
-}
 
 /* ── TIMELINE SHELL ───────────────────────────────────── */
 .timeline-shell {
