@@ -367,23 +367,10 @@ body {
   line-height: 1.2;
   color: #000;
 }
-.s-date {
+.s-meta {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.75rem;
   font-weight: 400;
-  color: #555;
-}
-.s-org {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: #555;
-}
-.s-role {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.75rem;
-  font-weight: 400;
-  font-style: italic;
   color: #555;
 }
 .s-link {

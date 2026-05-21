@@ -239,11 +239,12 @@ function openFocus(entry) {
   const desc  = entry.long_description || entry.short_description || '';
 
   const textCol = `
-    <div class="s-cat"><span class="filter-dot" style="background:${color}; border-color:${color}"></span>${entry.category.toUpperCase()}</div>
+    <div class="s-cat"><span class="filter-dot" style="background:${color}"></span>${entry.category.toUpperCase()}</div>
     <div class="s-title">${entry.title}</div>
-    <div class="s-date">${dateRange(entry)}</div>
-    ${entry.organization ? `<div class="s-org">${entry.organization}${entry.location ? ' &middot; ' + entry.location : ''}</div>` : ''}
-    ${entry.role ? `<div class="s-role">${entry.role}</div>` : ''}
+    ${entry.role         ? `<div class="s-meta">${entry.role}</div>` : ''}
+    ${entry.organization ? `<div class="s-meta">${entry.organization}</div>` : ''}
+    <div class="s-meta">${dateRange(entry)}</div>
+    ${entry.location     ? `<div class="s-meta">${entry.location}</div>` : ''}
     ${desc ? `<div class="s-desc">${desc.replace(/\n/g, '<br>')}</div>` : ''}
     ${entry.external_link ? `<a href="${entry.external_link}" target="_blank" rel="noopener" class="s-link">${entry.external_link_label || 'View →'}</a>` : ''}
   `;
