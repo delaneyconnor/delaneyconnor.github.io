@@ -4,7 +4,7 @@
    ============================================================ */
 
 :root {
-  --bar-h: 76px;
+  --bar-h: 88px;
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -370,7 +370,7 @@ body {
 }
 .s-meta {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.94rem;
+  font-size: 0.72rem;
   font-weight: 400;
   color: #000;
 }
@@ -389,7 +389,7 @@ body {
 
 .s-desc {
   font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 0.72rem;
+  font-size: 0.94rem;
   font-weight: 300;
   line-height: 1.7;
   color: #000;
