@@ -77,7 +77,7 @@ body::after {
   transform: translateX(-50%);
   white-space: nowrap;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.62rem;
+  font-size: 1.49rem;
   font-weight: 400;
   letter-spacing: 0.12em;
   color: #000;
