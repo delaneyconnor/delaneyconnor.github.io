@@ -495,7 +495,8 @@ function init() {
       renderFilters();
       render();
       pendingHash = location.hash.slice(1);
-      const imgs = data.map(d => d.image_1).filter(Boolean);
+      const imgKeys = ['image_1','image_2','image_3','image_4','image_5','image_6','image_7','image_8','image_9','image_10','image_11','image_12'];
+      const imgs = data.flatMap(d => imgKeys.map(k => d[k]).filter(Boolean));
       if (imgs.length) initBgTiles(imgs);
     })
     .catch(() => { allData = []; renderFilters(); render(); });
