@@ -100,7 +100,7 @@ body::after {
 .bg-tile {
   position: absolute;
   overflow: hidden;
-  border: 40px solid #fff;
+  border: 6px solid #fff;
 }
 .bg-tile img {
   width: 100%;
@@ -240,7 +240,7 @@ body::after {
 .canvas-wrap {
   flex: 1;
   overflow: auto;
-  background: rgba(255, 255, 255, 0.92);
+  background: transparent;
 }
 .canvas {
   position: relative;

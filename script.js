@@ -62,9 +62,26 @@ async function fetchData() {
 }
 
 function parseCSV(text) {
-  const lines = text.trim().split(/\r?\n/);
-  const headers = splitRow(lines[0]).map(h => h.trim());
-  return lines.slice(1)
+  // Collect logical rows respecting quoted newlines
+  const rows = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '"') {
+      if (inQ && text[i + 1] === '"') { cur += '"'; i++; }
+      else { inQ = !inQ; cur += ch; }
+    } else if ((ch === '\n' || ch === '\r') && !inQ) {
+      if (ch === '\r' && text[i + 1] === '\n') i++;
+      if (cur) rows.push(cur);
+      cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  if (cur) rows.push(cur);
+
+  const headers = splitRow(rows[0]).map(h => h.trim());
+  return rows.slice(1)
     .map(line => {
       const vals = splitRow(line);
       const obj = {};
@@ -77,9 +94,12 @@ function parseCSV(text) {
 function splitRow(line) {
   const out = [];
   let cur = '', inQ = false;
-  for (const ch of line) {
-    if (ch === '"') { inQ = !inQ; }
-    else if (ch === ',' && !inQ) { out.push(cur); cur = ''; }
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
+      else { inQ = !inQ; }
+    } else if (ch === ',' && !inQ) { out.push(cur); cur = ''; }
     else { cur += ch; }
   }
   out.push(cur);
