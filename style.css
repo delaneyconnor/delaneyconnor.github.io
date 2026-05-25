@@ -117,6 +117,8 @@ body::after {
   display: block;
 }
 .bg-tile img.active { opacity: 0.18; }
+.bg-tile img.color { filter: contrast(120%) brightness(1.05); }
+.bg-tile img.color.active { opacity: 0.60; }
 
 .bg-tile::after {
   content: '';

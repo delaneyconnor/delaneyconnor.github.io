@@ -41,6 +41,7 @@ let activeFilters = new Set(CAT_ORDER);
 let focusedEntry  = null;
 let preserveScroll = false;
 let pendingHash   = '';
+let bgImages      = [];
 
 function toSlug(str) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -240,6 +241,36 @@ function render() {
     bar.appendChild(lbl);
 
     bar.addEventListener('click', e => { e.stopPropagation(); openFocus(entry); });
+
+    const entryImgKeys = ['image_1','image_2','image_3','image_4','image_5','image_6','image_7','image_8','image_9','image_10','image_11','image_12'];
+    const entryImgs = entryImgKeys.map(k => entry[k]).filter(Boolean);
+    if (entryImgs.length) {
+      bar.addEventListener('mouseenter', () => {
+        document.querySelectorAll('#bg-tiles .bg-tile img.color').forEach(t => {
+          delete t.dataset.locked;
+          t.classList.remove('color', 'active');
+          setTimeout(() => cycleTile(t, bgImages), 1500);
+        });
+        const allTiles = document.querySelectorAll('#bg-tiles .bg-tile img');
+        if (!allTiles.length) return;
+        const tile = allTiles[Math.floor(Math.random() * allTiles.length)];
+        const src = entryImgs[Math.floor(Math.random() * entryImgs.length)];
+        tile.dataset.locked = '1';
+        tile.classList.remove('active');
+        tile.classList.add('color');
+        tile.onload = () => { if (tile.dataset.locked) tile.classList.add('active'); };
+        tile.src = src;
+      });
+      bar.addEventListener('mouseleave', () => {
+        const colorTile = document.querySelector('#bg-tiles .bg-tile img.color');
+        if (colorTile) {
+          delete colorTile.dataset.locked;
+          colorTile.classList.remove('color', 'active');
+          setTimeout(() => cycleTile(colorTile, bgImages), 1500);
+        }
+      });
+    }
+
     canvas.appendChild(bar);
   });
 }
@@ -419,6 +450,7 @@ function minPPM() {
 // ── Background tiles ─────────────────────────────────────
 
 function cycleTile(img, images) {
+  if (img.dataset.locked) return;
   const src = images[Math.floor(Math.random() * images.length)];
   img.onload = () => {
     img.classList.add('active');
@@ -432,6 +464,7 @@ function cycleTile(img, images) {
 }
 
 function initBgTiles(images) {
+  bgImages = images;
   const container = document.getElementById('bg-tiles');
   if (!images.length || !container) return;
   const COLS = 5;
