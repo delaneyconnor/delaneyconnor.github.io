@@ -378,22 +378,27 @@ body::after {
 }
 .sheet-img-col {
   flex: 0 0 50%;
-  padding: 1.5rem 1.5rem 1.5rem 4rem;
-  overflow: hidden;
+  padding: 1.5rem 0.75rem 1.5rem 4rem;
+  overflow-y: auto;
   display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  scrollbar-width: none;
 }
+.sheet-img-col::-webkit-scrollbar { display: none; }
 .sheet-img-col img {
   width: 100%;
-  flex: 1;
-  object-fit: cover;
   display: block;
-  min-height: 0;
+  object-fit: cover;
+  flex-shrink: 0;
 }
+.sheet-img-col img.img-tall { height: 70vh; }
+.sheet-img-col img.img-short { height: 40vh; }
 .sheet-img-placeholder {
   width: 100%;
-  flex: 1;
+  height: 60vh;
   background: #ebebeb;
-  min-height: 0;
+  flex-shrink: 0;
 }
 .sheet-text-col {
   flex: 1;

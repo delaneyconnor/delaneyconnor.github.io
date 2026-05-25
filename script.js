@@ -282,8 +282,10 @@ function openFocus(entry) {
     ${entry.external_link ? `<a href="${entry.external_link}" target="_blank" rel="noopener" class="s-link">${entry.external_link_label || 'View →'}</a>` : ''}
   `;
 
-  const imgHtml = entry.image_1
-    ? `<img src="${entry.image_1}" alt="${entry.title}">`
+  const imgKeys = ['image_1','image_2','image_3','image_4','image_5','image_6','image_7','image_8'];
+  const imgs = imgKeys.map(k => entry[k]).filter(Boolean);
+  const imgHtml = imgs.length
+    ? imgs.map((src, i) => `<img src="${src}" alt="${entry.title} ${i + 1}" class="${i === 0 ? 'img-tall' : 'img-short'}">`).join('')
     : `<div class="sheet-img-placeholder"></div>`;
 
   body.className = 'sheet-body two-col';
