@@ -251,15 +251,17 @@ function render() {
           t.classList.remove('color', 'active');
           setTimeout(() => cycleTile(t, bgImages), 1500);
         });
-        const allTiles = document.querySelectorAll('#bg-tiles .bg-tile img');
-        if (!allTiles.length) return;
-        const tile = allTiles[Math.floor(Math.random() * allTiles.length)];
-        const src = entryImgs[Math.floor(Math.random() * entryImgs.length)];
-        tile.dataset.locked = '1';
-        tile.classList.remove('active');
-        tile.classList.add('color');
-        tile.onload = () => { if (tile.dataset.locked) tile.classList.add('active'); };
-        tile.src = src;
+        const allTiles = Array.from(document.querySelectorAll('#bg-tiles .bg-tile img'))
+          .sort(() => Math.random() - 0.5);
+        entryImgs.forEach((src, i) => {
+          if (i >= allTiles.length) return;
+          const tile = allTiles[i];
+          tile.dataset.locked = '1';
+          tile.classList.remove('active');
+          tile.classList.add('color');
+          tile.onload = () => { if (tile.dataset.locked) tile.classList.add('active'); };
+          tile.src = src;
+        });
       });
       bar.addEventListener('mouseleave', () => {
         const colorTile = document.querySelector('#bg-tiles .bg-tile img.color');
