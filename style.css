@@ -101,7 +101,7 @@ body::after {
 .bg-tile {
   position: absolute;
   overflow: hidden;
-  border: 6px solid #fff;
+  border: none;
   image-rendering: pixelated;
 }
 .bg-tile img {
