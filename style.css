@@ -147,9 +147,9 @@ body::after {
   inset: 0 0 auto 0;
   height: var(--bar-h);
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 1.25rem;
-  padding: 0 1.25rem;
+  padding: 0 1.25rem 0.6rem;
   background: #fff;
   border-bottom: 2px solid #000;
   z-index: 100;
