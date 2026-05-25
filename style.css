@@ -116,9 +116,9 @@ body::after {
   transition: opacity 1.5s ease;
   display: block;
 }
-.bg-tile img.active { opacity: 0.28; }
+.bg-tile img.active { opacity: 0.22; }
 .bg-tile img.color { filter: contrast(110%) saturate(1.15) brightness(1.0); }
-.bg-tile img.color.active { opacity: 0.65; }
+.bg-tile img.color.active { opacity: 0.52; }
 
 /* ── MAIN APP ─────────────────────────────────────────── */
 .app {
