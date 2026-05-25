@@ -108,7 +108,7 @@ body::after {
   width: 1%;
   height: 1%;
   object-fit: cover;
-  filter: grayscale(100%) contrast(700%) brightness(0.55);
+  filter: grayscale(100%) contrast(180%) brightness(1.05);
   image-rendering: pixelated;
   transform: scale(100);
   transform-origin: 0 0;
@@ -116,19 +116,9 @@ body::after {
   transition: opacity 1.5s ease;
   display: block;
 }
-.bg-tile img.active { opacity: 0.18; }
-.bg-tile img.color { filter: contrast(700%) brightness(0.55); }
-.bg-tile img.color.active { opacity: 0.60; }
-
-.bg-tile::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)'/%3E%3C/svg%3E");
-  opacity: 0.20;
-  mix-blend-mode: overlay;
-}
+.bg-tile img.active { opacity: 0.28; }
+.bg-tile img.color { filter: contrast(110%) saturate(1.15) brightness(1.0); }
+.bg-tile img.color.active { opacity: 0.65; }
 
 /* ── MAIN APP ─────────────────────────────────────────── */
 .app {
