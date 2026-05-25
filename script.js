@@ -1,14 +1,32 @@
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT-OE9XqlJl3nutmKHwy5lBI6WR-NpAL7Ybvo5Bia29jp_pmZ0dMQfkrl1mTJb3GfhgMZg81q-9IQwn/pub?gid=0&single=true&output=csv';
 
-const CAT_ORDER = ['Education', 'Research & Writing', 'Graphic Design', 'Design Strategy', 'Organizing', 'Documentary/Media'];
-const CAT_COLORS = {
-  'Education':          '#039BE5',
-  'Research & Writing': '#E53935',
-  'Graphic Design':     '#FF9800',
-  'Design Strategy':    '#5E35B1',
-  'Organizing':         '#00897B',
-  'Documentary/Media':  '#D81B60',
+const CAT_ORDER = ['Education', 'Research & Writing', 'Graphic Design', 'Design Strategy', 'Organizing', 'Video'];
+const CAT_SHAPES = {
+  'Education':          'circle',
+  'Research & Writing': 'diamond',
+  'Graphic Design':     'star4',
+  'Design Strategy':    'star5',
+  'Organizing':         'star6',
+  'Video':              'square',
 };
+const SHAPE_SVG = {
+  circle:  '<circle cx="8" cy="8" r="6" class="shape-icon"/>',
+  square:  '<rect x="2.5" y="2.5" width="11" height="11" class="shape-icon"/>',
+  diamond: '<polygon points="8,1 15,8 8,15 1,8" class="shape-icon"/>',
+  star4:   '<polygon points="8,1.5 9.8,6.2 14.5,8 9.8,9.8 8,14.5 6.2,9.8 1.5,8 6.2,6.2" class="shape-icon"/>',
+  star5:   '<polygon points="8,1.5 9.6,5.7 14.2,6 10.7,8.9 11.8,13.3 8,10.8 4.2,13.3 5.3,8.9 1.8,6 6.4,5.7" class="shape-icon"/>',
+  star6:   '<polygon points="8,1.5 9.8,5 13.6,4.8 11.5,8 13.6,11.2 9.8,11 8,14.5 6.2,11 2.4,11.2 4.5,8 2.4,4.8 6.2,5" class="shape-icon"/>',
+};
+
+function makeDotEl(shape, cls) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '13');
+  svg.setAttribute('height', '13');
+  svg.setAttribute('viewBox', '0 0 16 16');
+  if (cls) svg.setAttribute('class', cls);
+  if (shape && SHAPE_SVG[shape]) svg.innerHTML = SHAPE_SVG[shape];
+  return svg;
+}
 
 const ROW_H   = 36;
 const BAR_H   = 1;
@@ -180,25 +198,17 @@ function render() {
     const durPx   = isPoint ? 0 : (endM - startM) * PPM;
     const width   = isPoint ? 14 : Math.max(durPx + PPM, 10);
     const top     = canvasAxisY + row.yOffset - Math.round(BAR_H / 2);
-    const color   = CAT_COLORS[entry.category] || '#888';
+    const shape   = CAT_SHAPES[entry.category] || 'circle';
 
     const bar = el('div', isPoint ? 'bar point-only' : 'bar');
     bar.style.cssText = `left:${left}px; width:${width}px; top:${top}px;`;
     if (focusedEntry === entry) bar.classList.add('selected');
 
     if (isPoint) {
-      // Single dot at the event date
-      const dot = el('div', 'dot dot-start');
-      dot.style.background = color;
-      bar.appendChild(dot);
+      bar.appendChild(makeDotEl(shape, 'dot dot-start'));
     } else {
-      const dotS = el('div', 'dot dot-start');
-      dotS.style.background = color;
-      bar.appendChild(dotS);
-
-      const dotE = el('div', 'dot dot-end');
-      dotE.style.background = color;
-      bar.appendChild(dotE);
+      bar.appendChild(makeDotEl(shape, 'dot dot-start'));
+      bar.appendChild(makeDotEl(shape, 'dot dot-end'));
     }
 
     const lbl = el('span', 'bar-lbl');
@@ -236,11 +246,12 @@ function openFocus(entry) {
   wrap.scrollLeft = barLeft + barWidth / 2 - wrap.clientWidth / 2;
 
   const body  = document.getElementById('sheet-body');
-  const color = CAT_COLORS[entry.category] || '#000';
+  const shape = CAT_SHAPES[entry.category] || 'circle';
   const desc  = entry.long_description || entry.short_description || '';
+  const dotSvg = `<svg width="12" height="12" viewBox="0 0 16 16">${SHAPE_SVG[shape]}</svg>`;
 
   const textCol = `
-    <div class="s-title-row"><span class="filter-dot" style="background:${color}"></span><div class="s-title">${entry.title}</div></div>
+    <div class="s-title-row">${dotSvg}<div class="s-title">${entry.title}</div></div>
     <div class="s-meta-group">
       ${entry.role         ? `<div class="s-meta">${entry.role}</div>` : ''}
       ${entry.organization ? `<div class="s-meta">${entry.organization}</div>` : ''}
@@ -335,7 +346,7 @@ function renderFilters() {
 
   CAT_ORDER.forEach(cat => {
     const isolated = activeFilters.size === 1 && activeFilters.has(cat);
-    const b = makeBtn(cat, CAT_COLORS[cat], activeFilters.has(cat));
+    const b = makeBtn(cat, CAT_SHAPES[cat], activeFilters.has(cat));
     b.addEventListener('click', () => {
       dismissPanel();
       if (isolated) {
@@ -350,11 +361,9 @@ function renderFilters() {
   });
 }
 
-function makeBtn(label, color, active) {
+function makeBtn(label, shape, active) {
   const b = el('button', 'filter-btn' + (active ? ' active' : ''));
-  if (color) b.style.setProperty('--c', color);
-  const dot = el('span', 'filter-dot');
-  b.appendChild(dot);
+  if (shape) b.appendChild(makeDotEl(shape, 'filter-dot'));
   const lbl = el('span', 'filter-lbl');
   lbl.textContent = label;
   b.appendChild(lbl);
