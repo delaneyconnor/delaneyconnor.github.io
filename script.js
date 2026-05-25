@@ -334,6 +334,21 @@ function openFocus(entry) {
   document.getElementById('detail-sheet').classList.add('open');
   document.getElementById('scrim')?.classList.add('active');
   history.replaceState(null, '', '#' + toSlug(entry.title));
+
+  const nextBtn = document.getElementById('sheet-next');
+  if (nextBtn) {
+    const sorted = [...allData]
+      .filter(d => activeFilters.has(d.category))
+      .sort((a, b) => toMonths(a.start_month, a.start_year) - toMonths(b.start_month, b.start_year));
+    const idx = sorted.findIndex(d => d.title === entry.title);
+    if (idx >= 0 && sorted.length > 1) {
+      const nextEntry = sorted[(idx + 1) % sorted.length];
+      nextBtn.onclick = () => openFocus(nextEntry);
+      nextBtn.style.display = '';
+    } else {
+      nextBtn.style.display = 'none';
+    }
+  }
 }
 
 function closeFocus() {
@@ -459,7 +474,7 @@ function cycleTile(img, images) {
     setTimeout(() => {
       img.classList.remove('active');
       setTimeout(() => cycleTile(img, images), 1500);
-    }, 3000 + Math.random() * 5000);
+    }, 10000 + Math.random() * 15000);
   };
   img.onerror = () => setTimeout(() => cycleTile(img, images), 2000);
   img.src = src;
@@ -482,7 +497,7 @@ function initBgTiles(images) {
       const img = document.createElement('img');
       tile.appendChild(img);
       container.appendChild(tile);
-      setTimeout(() => cycleTile(img, images), Math.random() * 12000);
+      setTimeout(() => cycleTile(img, images), Math.random() * 25000);
     }
   }
 }
