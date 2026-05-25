@@ -273,6 +273,7 @@ function openFocus(entry) {
   `;
 
   document.getElementById('detail-sheet').classList.add('open');
+  document.getElementById('scrim').classList.add('active');
   history.replaceState(null, '', '#' + toSlug(entry.title));
 }
 
@@ -280,6 +281,7 @@ function closeFocus() {
   focusedEntry = null;
   document.getElementById('canvas').classList.remove('focused');
   document.getElementById('detail-sheet').classList.remove('open');
+  document.getElementById('scrim').classList.remove('active');
   document.querySelectorAll('.bar.selected').forEach(b => b.classList.remove('selected'));
   history.replaceState(null, '', location.pathname + location.search);
   if (allData.length) {
@@ -295,6 +297,7 @@ function dismissPanel() {
   focusedEntry = null;
   document.getElementById('canvas').classList.remove('focused');
   sheet.classList.remove('open');
+  document.getElementById('scrim').classList.remove('active');
   document.querySelectorAll('.bar.selected').forEach(b => b.classList.remove('selected'));
   history.replaceState(null, '', location.pathname + location.search);
   if (allData.length) {
@@ -326,6 +329,7 @@ function openAbout() {
   `;
 
   document.getElementById('detail-sheet').classList.add('open');
+  document.getElementById('scrim').classList.add('active');
   history.replaceState(null, '', '#about');
 }
 
@@ -471,6 +475,25 @@ function init() {
     .catch(() => { allData = []; renderFilters(); render(); });
 }
 
+// ── Text scramble ─────────────────────────────────────────
+
+function scrambleText(el, finalText, duration) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const steps = Math.round(duration / 40);
+  let frame = 0;
+  const interval = setInterval(() => {
+    el.textContent = finalText.split('').map((ch, i) => {
+      if (ch === ' ') return ' ';
+      if (frame / steps > i / finalText.replace(/ /g, '').length * 1.4) return ch;
+      return chars[Math.floor(Math.random() * chars.length)];
+    }).join('');
+    if (frame++ >= steps) {
+      el.textContent = finalText;
+      clearInterval(interval);
+    }
+  }, 40);
+}
+
 // ── "View portfolio" — global so onclick="" attribute can call it ──
 
 function startPortfolio() {
@@ -497,3 +520,7 @@ function startPortfolio() {
 }
 
 init();
+
+// Scramble the intro name on load
+const introNameEl = document.getElementById('intro-name');
+if (introNameEl) scrambleText(introNameEl, 'DELANEY CONNOR', 1800);
