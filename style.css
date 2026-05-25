@@ -96,6 +96,7 @@ body::after {
   inset: 0;
   pointer-events: none;
   z-index: 0;
+  overflow: hidden;
 }
 .bg-tile {
   position: absolute;
@@ -179,7 +180,7 @@ body::after {
 
 .filter-btn {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.72rem;
+  font-size: 0.83rem;
   font-weight: 500;
   letter-spacing: 0.07em;
   padding: 0 6px;
@@ -215,17 +216,6 @@ body::after {
   inset: var(--bar-h) 0 0 0;
   display: flex;
   flex-direction: column;
-}
-.timeline-shell::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 80px;
-  background: linear-gradient(to bottom, transparent, #fff 65%);
-  pointer-events: none;
-  z-index: 5;
 }
 
 /* ── YEAR LABELS (on canvas) ──────────────────────────── */
@@ -442,7 +432,7 @@ body::after {
 }
 .s-meta {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.72rem;
+  font-size: 0.83rem;
   font-weight: 400;
   color: #000;
 }

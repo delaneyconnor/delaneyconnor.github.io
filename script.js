@@ -191,6 +191,10 @@ function render() {
   }
   preserveScroll = false;
 
+  // Clip bg tiles to stop at the axis line
+  const bgTiles = document.getElementById('bg-tiles');
+  if (bgTiles) bgTiles.style.height = (canvasWrap.offsetTop + targetAxisY) + 'px';
+
   // Axis line
   const axis = el('div', 'axis-line');
   axis.style.cssText = `top:${canvasAxisY}px; width:${W}px;`;
