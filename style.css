@@ -62,7 +62,7 @@ body::after {
   left: 50%;
   transform: translate(-50%, -50%);
   width: 72px;
-  height: 6px;
+  height: 2px;
   background: #000;
   transition: width 0.85s cubic-bezier(0.4, 0, 0.2, 1), top 0.5s ease-in;
 }
@@ -151,7 +151,7 @@ body::after {
   gap: 1.25rem;
   padding: 0 1.25rem;
   background: #fff;
-  border-bottom: 1.5px solid #000;
+  border-bottom: 2px solid #000;
   z-index: 100;
   transform: translateY(-100%);
   transition: transform 0.5s ease;
@@ -263,7 +263,7 @@ body::after {
 
 .axis-line {
   position: absolute;
-  height: 6px;
+  height: 2px;
   background: #000;
   pointer-events: none;
 }
@@ -271,7 +271,7 @@ body::after {
 /* ── ENTRY LINES ──────────────────────────────────────── */
 .bar {
   position: absolute;
-  height: 1px;
+  height: 2px;
   background: #000;
   cursor: pointer;
   overflow: visible;
