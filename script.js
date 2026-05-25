@@ -1,12 +1,13 @@
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT-OE9XqlJl3nutmKHwy5lBI6WR-NpAL7Ybvo5Bia29jp_pmZ0dMQfkrl1mTJb3GfhgMZg81q-9IQwn/pub?gid=0&single=true&output=csv';
 
-const CAT_ORDER = ['Work', 'Projects', 'Education', 'Writing', 'Graphic Design'];
+const CAT_ORDER = ['Education', 'Research & Writing', 'Graphic Design', 'Design Strategy', 'Organizing', 'Documentary/Media'];
 const CAT_COLORS = {
-  'Work':           '#00897B',
-  'Projects':       '#5E35B1',
-  'Education':      '#039BE5',
-  'Writing':        '#E53935',
-  'Graphic Design': '#FF9800',
+  'Education':          '#039BE5',
+  'Research & Writing': '#E53935',
+  'Graphic Design':     '#FF9800',
+  'Design Strategy':    '#5E35B1',
+  'Organizing':         '#00897B',
+  'Documentary/Media':  '#D81B60',
 };
 
 const ROW_H   = 36;
