@@ -273,7 +273,7 @@ function openFocus(entry) {
   `;
 
   document.getElementById('detail-sheet').classList.add('open');
-  document.getElementById('scrim').classList.add('active');
+  document.getElementById('scrim')?.classList.add('active');
   history.replaceState(null, '', '#' + toSlug(entry.title));
 }
 
@@ -281,7 +281,7 @@ function closeFocus() {
   focusedEntry = null;
   document.getElementById('canvas').classList.remove('focused');
   document.getElementById('detail-sheet').classList.remove('open');
-  document.getElementById('scrim').classList.remove('active');
+  document.getElementById('scrim')?.classList.remove('active');
   document.querySelectorAll('.bar.selected').forEach(b => b.classList.remove('selected'));
   history.replaceState(null, '', location.pathname + location.search);
   if (allData.length) {
@@ -297,7 +297,7 @@ function dismissPanel() {
   focusedEntry = null;
   document.getElementById('canvas').classList.remove('focused');
   sheet.classList.remove('open');
-  document.getElementById('scrim').classList.remove('active');
+  document.getElementById('scrim')?.classList.remove('active');
   document.querySelectorAll('.bar.selected').forEach(b => b.classList.remove('selected'));
   history.replaceState(null, '', location.pathname + location.search);
   if (allData.length) {
@@ -329,7 +329,7 @@ function openAbout() {
   `;
 
   document.getElementById('detail-sheet').classList.add('open');
-  document.getElementById('scrim').classList.add('active');
+  document.getElementById('scrim')?.classList.add('active');
   history.replaceState(null, '', '#about');
 }
 
