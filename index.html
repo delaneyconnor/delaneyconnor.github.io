@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=73">
+  <link rel="stylesheet" href="style.css?v=74">
 </head>
 <body>
 
@@ -25,7 +25,10 @@
     <div id="bg-tiles" aria-hidden="true"></div>
 
     <header class="top-bar">
-      <button class="site-name" id="about-btn">DELANEY CONNOR</button>
+      <button class="site-name" id="about-btn">
+        <span class="site-name-full">DELANEY CONNOR</span>
+        <span class="site-name-short">DC</span>
+      </button>
       <div class="header-right">
         <div id="filter-bar" class="filter-bar"></div>
         <button id="filter-mobile-toggle" class="filter-mobile-toggle">
@@ -47,9 +50,11 @@
 
     <!-- Detail panel -->
     <div id="detail-sheet" class="detail-sheet">
+      <div class="sheet-nav">
+        <button id="sheet-close" class="sheet-close"><span>←</span><span>back</span></button>
+        <button id="sheet-next" class="sheet-next"><span>next</span><span>→</span></button>
+      </div>
       <div id="sheet-body" class="sheet-body"></div>
-      <button id="sheet-close" class="sheet-close"><span>←</span><span>back</span></button>
-      <button id="sheet-next" class="sheet-next"><span>next</span><span>→</span></button>
     </div>
 
   </div>
