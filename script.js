@@ -193,7 +193,7 @@ function render() {
 
   // Clip bg tiles to stop at the axis line
   const bgTiles = document.getElementById('bg-tiles');
-  if (bgTiles) bgTiles.style.height = (canvasWrap.offsetTop + targetAxisY) + 'px';
+  if (bgTiles) bgTiles.style.height = (canvasWrap.getBoundingClientRect().top + targetAxisY) + 'px';
 
   // Axis line
   const axis = el('div', 'axis-line');
