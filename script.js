@@ -359,7 +359,7 @@ function closeFocus() {
   document.querySelectorAll('.bar.selected').forEach(b => b.classList.remove('selected'));
   history.replaceState(null, '', location.pathname + location.search);
   if (allData.length) {
-    PPM = fitToWidth(allData);
+    PPM = defaultPPM();
     render();
   }
 }
@@ -375,7 +375,7 @@ function dismissPanel() {
   document.querySelectorAll('.bar.selected').forEach(b => b.classList.remove('selected'));
   history.replaceState(null, '', location.pathname + location.search);
   if (allData.length) {
-    PPM = fitToWidth(allData);
+    PPM = defaultPPM();
   }
 }
 
@@ -460,8 +460,15 @@ function fitToWidth(data) {
   return Math.max(3, Math.min(60, w / months));
 }
 
+function isMobile() { return window.innerWidth < 768; }
+
+function defaultPPM() {
+  if (!allData.length) return 3;
+  return isMobile() ? 10 : fitToWidth(allData);
+}
+
 function minPPM() {
-  return allData.length ? fitToWidth(allData) : 3;
+  return defaultPPM();
 }
 
 // ── Background tiles ─────────────────────────────────────
@@ -541,7 +548,7 @@ function init() {
   fetchData()
     .then(data => {
       allData = data;
-      PPM = fitToWidth(data);
+      PPM = defaultPPM();
       renderFilters();
       render();
       pendingHash = location.hash.slice(1);
