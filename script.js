@@ -285,7 +285,7 @@ function openFocus(entry) {
   const imgKeys = ['image_1','image_2','image_3','image_4','image_5','image_6','image_7','image_8'];
   const imgs = imgKeys.map(k => entry[k]).filter(Boolean);
   const imgHtml = imgs.length
-    ? imgs.map((src, i) => `<img src="${src}" alt="${entry.title} ${i + 1}" class="${i === 0 ? 'img-tall' : 'img-short'}">`).join('')
+    ? imgs.map((src, i) => `<img src="${src}" alt="${entry.title} ${i + 1}">`).join('')
     : `<div class="sheet-img-placeholder"></div>`;
 
   body.className = 'sheet-body two-col';

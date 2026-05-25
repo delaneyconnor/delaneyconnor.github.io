@@ -216,6 +216,17 @@ body::after {
   display: flex;
   flex-direction: column;
 }
+.timeline-shell::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to bottom, transparent, #fff 65%);
+  pointer-events: none;
+  z-index: 5;
+}
 
 /* ── YEAR LABELS (on canvas) ──────────────────────────── */
 .year-tick {
@@ -388,12 +399,10 @@ body::after {
 .sheet-img-col::-webkit-scrollbar { display: none; }
 .sheet-img-col img {
   width: 100%;
+  height: auto;
   display: block;
-  object-fit: cover;
   flex-shrink: 0;
 }
-.sheet-img-col img.img-tall { height: 70vh; }
-.sheet-img-col img.img-short { height: 40vh; }
 .sheet-img-placeholder {
   width: 100%;
   height: 60vh;
