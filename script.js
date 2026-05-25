@@ -20,8 +20,8 @@ const SHAPE_SVG = {
 
 function makeDotEl(shape, cls) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', '13');
-  svg.setAttribute('height', '13');
+  svg.setAttribute('width', '20');
+  svg.setAttribute('height', '20');
   svg.setAttribute('viewBox', '0 0 16 16');
   if (cls) svg.setAttribute('class', cls);
   if (shape && SHAPE_SVG[shape]) svg.innerHTML = SHAPE_SVG[shape];
@@ -248,7 +248,7 @@ function openFocus(entry) {
   const body  = document.getElementById('sheet-body');
   const shape = CAT_SHAPES[entry.category] || 'circle';
   const desc  = entry.long_description || entry.short_description || '';
-  const dotSvg = `<svg width="12" height="12" viewBox="0 0 16 16">${SHAPE_SVG[shape]}</svg>`;
+  const dotSvg = `<svg width="18" height="18" viewBox="0 0 16 16">${SHAPE_SVG[shape]}</svg>`;
 
   const textCol = `
     <div class="s-title-row">${dotSvg}<div class="s-title">${entry.title}</div></div>
