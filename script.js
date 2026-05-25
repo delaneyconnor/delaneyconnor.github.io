@@ -404,14 +404,16 @@ function cycleTile(img, images) {
 function initBgTiles(images) {
   const container = document.getElementById('bg-tiles');
   if (!images.length || !container) return;
-  const COLS = 5, ROWS = 4;
+  const COLS = 5;
+  const size = Math.floor(window.innerWidth / COLS);
+  const ROWS = Math.ceil(window.innerHeight / size) + 1;
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
       const tile = el('div', 'bg-tile');
-      tile.style.left   = `${(c / COLS) * 100}%`;
-      tile.style.top    = `${(r / ROWS) * 100}%`;
-      tile.style.width  = `${100 / COLS}%`;
-      tile.style.height = `${100 / ROWS}%`;
+      tile.style.left   = `${c * size}px`;
+      tile.style.top    = `${r * size}px`;
+      tile.style.width  = `${size}px`;
+      tile.style.height = `${size}px`;
       const img = document.createElement('img');
       tile.appendChild(img);
       container.appendChild(tile);
