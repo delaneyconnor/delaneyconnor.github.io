@@ -601,7 +601,6 @@ body::after {
     justify-content: space-between;
     align-items: center;
     padding: 0.85rem 1.25rem;
-    border-bottom: 1px solid #e0e0e0;
     flex-shrink: 0;
   }
   .sheet-close,
