@@ -437,6 +437,70 @@ function renderFilters() {
     });
     bar.appendChild(b);
   });
+
+  // Mobile dropdown
+  const dropdown = document.getElementById('filter-dropdown');
+  const toggle   = document.getElementById('filter-mobile-toggle');
+  const label    = document.getElementById('filter-mobile-label');
+  if (!dropdown || !toggle) return;
+
+  dropdown.innerHTML = '';
+
+  const allActive2 = activeFilters.size === CAT_ORDER.length;
+  label.textContent = allActive2 ? 'All' : (activeFilters.size === 1 ? [...activeFilters][0] : 'Filtered');
+
+  const makeItem = (text, active, onClick) => {
+    const btn = el('button', 'filter-dropdown-item' + (active ? ' active' : ''));
+    btn.textContent = text;
+    btn.addEventListener('click', () => {
+      closeMobileDropdown();
+      onClick();
+    });
+    dropdown.appendChild(btn);
+  };
+
+  makeItem('All', allActive2, () => {
+    dismissPanel();
+    CAT_ORDER.forEach(c => activeFilters.add(c));
+    renderFilters(); render();
+  });
+
+  CAT_ORDER.forEach(cat => {
+    const isolated = activeFilters.size === 1 && activeFilters.has(cat);
+    makeItem(cat, activeFilters.has(cat), () => {
+      dismissPanel();
+      if (isolated) {
+        CAT_ORDER.forEach(c => activeFilters.add(c));
+      } else {
+        CAT_ORDER.forEach(c => activeFilters.delete(c));
+        activeFilters.add(cat);
+      }
+      renderFilters(); render();
+    });
+  });
+}
+
+function closeMobileDropdown() {
+  const dropdown = document.getElementById('filter-dropdown');
+  const toggle   = document.getElementById('filter-mobile-toggle');
+  dropdown?.classList.remove('open');
+  toggle?.classList.remove('open');
+}
+
+function initMobileToggle() {
+  const toggle = document.getElementById('filter-mobile-toggle');
+  const dropdown = document.getElementById('filter-dropdown');
+  if (!toggle || !dropdown) return;
+  toggle.addEventListener('click', () => {
+    const isOpen = dropdown.classList.toggle('open');
+    toggle.classList.toggle('open', isOpen);
+  });
+  // close dropdown when clicking outside
+  document.addEventListener('click', e => {
+    if (!toggle.contains(e.target) && !dropdown.contains(e.target)) {
+      closeMobileDropdown();
+    }
+  });
 }
 
 function makeBtn(label, shape, active) {
@@ -543,6 +607,7 @@ function init() {
 
   document.getElementById('sheet-close').addEventListener('click', closeFocus);
   document.getElementById('about-btn').addEventListener('click', openAbout);
+  initMobileToggle();
 
   // Fetch data as soon as the page loads
   fetchData()
