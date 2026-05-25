@@ -386,6 +386,40 @@ function minPPM() {
   return allData.length ? fitToWidth(allData) : 3;
 }
 
+// ── Background tiles ─────────────────────────────────────
+
+function cycleTile(img, images) {
+  const src = images[Math.floor(Math.random() * images.length)];
+  img.onload = () => {
+    img.classList.add('active');
+    setTimeout(() => {
+      img.classList.remove('active');
+      setTimeout(() => cycleTile(img, images), 1500);
+    }, 3000 + Math.random() * 5000);
+  };
+  img.onerror = () => setTimeout(() => cycleTile(img, images), 2000);
+  img.src = src;
+}
+
+function initBgTiles(images) {
+  const container = document.getElementById('bg-tiles');
+  if (!images.length || !container) return;
+  const COLS = 5, ROWS = 4;
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const tile = el('div', 'bg-tile');
+      tile.style.left   = `${(c / COLS) * 100}%`;
+      tile.style.top    = `${(r / ROWS) * 100}%`;
+      tile.style.width  = `${100 / COLS}%`;
+      tile.style.height = `${100 / ROWS}%`;
+      const img = document.createElement('img');
+      tile.appendChild(img);
+      container.appendChild(tile);
+      setTimeout(() => cycleTile(img, images), Math.random() * 12000);
+    }
+  }
+}
+
 // ── Init ──────────────────────────────────────────────────
 
 // Zoom keeping the viewport center pinned to the same calendar position
@@ -429,6 +463,8 @@ function init() {
       renderFilters();
       render();
       pendingHash = location.hash.slice(1);
+      const imgs = data.map(d => d.image_1).filter(Boolean);
+      if (imgs.length) initBgTiles(imgs);
     })
     .catch(() => { allData = []; renderFilters(); render(); });
 }
