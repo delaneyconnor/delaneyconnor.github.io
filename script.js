@@ -504,7 +504,7 @@ function initBgTiles(images) {
       const img = document.createElement('img');
       tile.appendChild(img);
       container.appendChild(tile);
-      setTimeout(() => cycleTile(img, images), Math.random() * 25000);
+      setTimeout(() => cycleTile(img, images), Math.random() * 6000);
     }
   }
 }
