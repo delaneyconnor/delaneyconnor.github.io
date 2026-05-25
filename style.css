@@ -351,14 +351,13 @@ body::after {
   top: var(--bar-h); right: 0; bottom: 0;
   width: 100vw;
   background: #fff;
-  transform: translateX(100%);
-  transition: transform 0.35s ease;
+  visibility: hidden;
   z-index: 50;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
-.detail-sheet.open { transform: translateX(0); }
+.detail-sheet.open { visibility: visible; }
 
 /* nav wrapper — absolute overlay on desktop */
 .sheet-nav {
