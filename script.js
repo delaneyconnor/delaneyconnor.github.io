@@ -358,6 +358,8 @@ function openFocus(entry) {
   const imgFigures = imgKeys
     .filter(k => entry[k])
     .map(k => {
+      const val     = entry[k];
+      const eUrl    = getEmbedUrl(val);
       const caption = entry[k + '_caption'] || '';
       const source  = entry[k + '_source']  || '';
       const meta = (caption || source) ? `
@@ -365,7 +367,11 @@ function openFocus(entry) {
           ${caption ? `<span class="sheet-caption">${caption}</span>` : ''}
           ${source  ? `<span class="sheet-source">${source}</span>`   : ''}
         </figcaption>` : '';
-      return `<figure class="sheet-figure"><img src="${entry[k]}" alt="${entry.title}">${meta}</figure>`;
+      if (eUrl) {
+        const doc = eUrl.includes('drive.google.com');
+        return `<figure class="sheet-figure"><div class="sheet-embed${doc ? ' sheet-embed--doc' : ''}"><iframe src="${eUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>${meta}</figure>`;
+      }
+      return `<figure class="sheet-figure"><img src="${val}" alt="${entry.title}">${meta}</figure>`;
     }).join('');
   const imgHtml = embedHtml + (imgFigures || (!embedHtml ? `<div class="sheet-img-placeholder"></div>` : ''));
 
@@ -664,6 +670,12 @@ function init() {
       const imgKeys = ['image_1','image_2','image_3','image_4','image_5','image_6','image_7','image_8','image_9','image_10','image_11','image_12'];
       const imgs = data.flatMap(d => imgKeys.map(k => d[k]).filter(Boolean));
       if (imgs.length) initBgTiles(imgs);
+      if (pendingHash) {
+        const h = pendingHash; pendingHash = '';
+        document.getElementById('intro').style.display = 'none';
+        document.getElementById('app').classList.add('visible');
+        resolveHash(h);
+      }
     })
     .catch(() => { allData = []; renderFilters(); render(); });
 }
