@@ -339,15 +339,24 @@ function openFocus(entry) {
     ${entry.external_link ? `<a href="${entry.external_link}" target="_blank" rel="noopener" class="s-link">${entry.external_link_label || 'View →'}</a>` : ''}
   `;
 
-  const imgKeys = ['image_1','image_2','image_3','image_4','image_5','image_6','image_7','image_8'];
-  const imgs = imgKeys.map(k => entry[k]).filter(Boolean);
+  const imgKeys = ['image_1','image_2','image_3','image_4','image_5','image_6','image_7','image_8','image_9','image_10','image_11','image_12'];
   const embedUrl = getEmbedUrl(entry.external_link);
   const embedHtml = embedUrl
     ? `<div class="sheet-embed"><iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
     : '';
-  const imgHtml = embedHtml + (imgs.length
-    ? imgs.map((src, i) => `<img src="${src}" alt="${entry.title} ${i + 1}">`).join('')
-    : (!embedHtml ? `<div class="sheet-img-placeholder"></div>` : ''));
+  const imgFigures = imgKeys
+    .filter(k => entry[k])
+    .map(k => {
+      const caption = entry[k + '_caption'] || '';
+      const source  = entry[k + '_source']  || '';
+      const meta = (caption || source) ? `
+        <figcaption class="sheet-figcaption">
+          ${caption ? `<span class="sheet-caption">${caption}</span>` : ''}
+          ${source  ? `<span class="sheet-source">${source}</span>`   : ''}
+        </figcaption>` : '';
+      return `<figure class="sheet-figure"><img src="${entry[k]}" alt="${entry.title}">${meta}</figure>`;
+    }).join('');
+  const imgHtml = embedHtml + (imgFigures || (!embedHtml ? `<div class="sheet-img-placeholder"></div>` : ''));
 
   body.className = 'sheet-body two-col';
   body.innerHTML = `

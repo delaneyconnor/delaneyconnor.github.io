@@ -449,6 +449,34 @@ body::after {
   background: #ebebeb;
   flex-shrink: 0;
 }
+.sheet-figure {
+  display: block;
+  width: 100%;
+  flex-shrink: 0;
+  margin: 0;
+}
+.sheet-figure img { width: 100%; height: auto; display: block; }
+.sheet-figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.35rem 0 0.65rem;
+  border-bottom: 1px solid #e8e8e8;
+}
+.sheet-caption {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: #555;
+  line-height: 1.45;
+}
+.sheet-source {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: #aaa;
+  line-height: 1.4;
+}
 .sheet-embed {
   width: 100%;
   flex-shrink: 0;
