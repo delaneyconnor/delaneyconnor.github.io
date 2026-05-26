@@ -128,7 +128,8 @@ function moStr(n) { return MO[(parseInt(n) || 1) - 1] || ''; }
 function dateRange(entry) {
   const s = `${moStr(entry.start_month)} ${entry.start_year}`;
   const ey = (entry.end_year || '').toLowerCase();
-  const e = (!ey || ey === 'present') ? 'Present' : `${moStr(entry.end_month)} ${entry.end_year}`;
+  if (!ey) return s;
+  const e = ey === 'present' ? 'Present' : `${moStr(entry.end_month)} ${entry.end_year}`;
   return `${s} – ${e}`;
 }
 
