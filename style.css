@@ -486,6 +486,9 @@ body::after {
   aspect-ratio: unset;
   height: 80vh;
 }
+.sheet-embed.sheet-embed--video {
+  margin-top: 1.25rem;
+}
 .sheet-embed iframe {
   width: 100%;
   height: 100%;
