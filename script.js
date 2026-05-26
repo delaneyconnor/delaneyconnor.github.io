@@ -300,6 +300,9 @@ function getEmbedUrl(url) {
   // Vimeo: vimeo.com/ID
   const vmMatch = url.match(/vimeo\.com\/(\d+)/);
   if (vmMatch) return `https://player.vimeo.com/video/${vmMatch[1]}`;
+  // Google Drive: /file/d/ID/view → /file/d/ID/preview
+  const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (driveMatch) return `https://drive.google.com/file/d/${driveMatch[1]}/preview`;
   return null;
 }
 
@@ -341,8 +344,9 @@ function openFocus(entry) {
 
   const imgKeys = ['image_1','image_2','image_3','image_4','image_5','image_6','image_7','image_8','image_9','image_10','image_11','image_12'];
   const embedUrl = getEmbedUrl(entry.external_link);
+  const isDoc = embedUrl && embedUrl.includes('drive.google.com');
   const embedHtml = embedUrl
-    ? `<div class="sheet-embed"><iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
+    ? `<div class="sheet-embed${isDoc ? ' sheet-embed--doc' : ''}"><iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
     : '';
   const imgFigures = imgKeys
     .filter(k => entry[k])
