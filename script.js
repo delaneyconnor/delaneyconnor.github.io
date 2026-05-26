@@ -283,6 +283,19 @@ function el(tag, cls) {
   return e;
 }
 
+// ── Video embed helpers ───────────────────────────────────
+
+function getEmbedUrl(url) {
+  if (!url) return null;
+  // YouTube: watch?v=ID or youtu.be/ID
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?(?:.*&)?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+  // Vimeo: vimeo.com/ID
+  const vmMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vmMatch) return `https://player.vimeo.com/video/${vmMatch[1]}`;
+  return null;
+}
+
 // ── Focus / detail sheet ──────────────────────────────────
 
 function openFocus(entry) {
@@ -321,9 +334,13 @@ function openFocus(entry) {
 
   const imgKeys = ['image_1','image_2','image_3','image_4','image_5','image_6','image_7','image_8'];
   const imgs = imgKeys.map(k => entry[k]).filter(Boolean);
-  const imgHtml = imgs.length
+  const embedUrl = getEmbedUrl(entry.external_link);
+  const embedHtml = embedUrl
+    ? `<div class="sheet-embed"><iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
+    : '';
+  const imgHtml = embedHtml + (imgs.length
     ? imgs.map((src, i) => `<img src="${src}" alt="${entry.title} ${i + 1}">`).join('')
-    : `<div class="sheet-img-placeholder"></div>`;
+    : (!embedHtml ? `<div class="sheet-img-placeholder"></div>` : ''));
 
   body.className = 'sheet-body two-col';
   body.innerHTML = `
