@@ -215,6 +215,11 @@ body::after {
 .shape-icon { fill: #000; }
 .filter-btn:not(.active) .shape-icon { fill: none; stroke: #000; stroke-width: 1.5; }
 
+/* Bar end-caps: hollow by default, fill on hover/selected */
+.bar .shape-icon { fill: none; stroke: #000; stroke-width: 1.5; }
+.bar:hover .shape-icon,
+.bar.selected .shape-icon { fill: #000; stroke: none; }
+
 .filter-lbl { line-height: 1; }
 
 
