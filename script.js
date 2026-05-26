@@ -342,15 +342,6 @@ function openFocus(entry) {
   const imgKeys = ['image_1','image_2','image_3','image_4','image_5','image_6','image_7','image_8','image_9','image_10','image_11','image_12'];
   const embedUrl = getEmbedUrl(entry.external_link);
   const isDoc = embedUrl && embedUrl.includes('drive.google.com');
-  const isVideo = embedUrl && !isDoc;
-
-  // Video embeds (YouTube/Vimeo) go in the text column; Drive docs stay in the media column
-  const videoHtml = isVideo
-    ? `<div class="sheet-embed sheet-embed--video"><iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
-    : '';
-  const docEmbedHtml = isDoc
-    ? `<div class="sheet-embed sheet-embed--doc"><iframe src="${embedUrl}" frameborder="0" allowfullscreen></iframe></div>`
-    : '';
 
   const textCol = `
     <div class="s-title-row">${dotSvg}<div class="s-title">${entry.title}</div></div>
@@ -361,7 +352,6 @@ function openFocus(entry) {
       ${entry.location     ? `<div class="s-meta">${entry.location}</div>` : ''}
     </div>
     ${desc ? `<div class="s-desc">${parseMdLinks(desc).replace(/\n/g, '<br>')}</div>` : ''}
-    ${videoHtml}
     ${entry.external_link ? `<a href="${entry.external_link}" target="_blank" rel="noopener" class="s-link">${entry.external_link_label || 'View →'}</a>` : ''}
   `;
 
@@ -383,7 +373,10 @@ function openFocus(entry) {
       }
       return `<figure class="sheet-figure"><img src="${val}" alt="${entry.title}">${meta}</figure>`;
     }).join('');
-  const imgHtml = docEmbedHtml + (imgFigures || (!docEmbedHtml ? `<div class="sheet-img-placeholder"></div>` : ''));
+  const embedHtml = embedUrl
+    ? `<div class="sheet-embed${isDoc ? ' sheet-embed--doc' : ''}"><iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
+    : '';
+  const imgHtml = embedHtml + (imgFigures || (!embedHtml ? `<div class="sheet-img-placeholder"></div>` : ''));
 
   body.className = 'sheet-body two-col';
   body.innerHTML = `
