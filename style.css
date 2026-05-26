@@ -232,8 +232,8 @@ body::after {
   padding-left: 4px;
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.83rem;
-  font-weight: 500;
-  color: #000;
+  font-weight: 400;
+  color: #bbb;
   user-select: none;
   pointer-events: none;
   white-space: nowrap;
