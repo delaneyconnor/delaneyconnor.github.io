@@ -305,7 +305,11 @@ function getEmbedUrl(url) {
   if (!url) return null;
   // YouTube: watch?v=ID or youtu.be/ID
   const ytMatch = url.match(/(?:youtube\.com\/watch\?(?:.*&)?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+  if (ytMatch) {
+    const tMatch = url.match(/[?&]t=(\d+)/);
+    const start = tMatch ? `?start=${tMatch[1]}` : '';
+    return `https://www.youtube.com/embed/${ytMatch[1]}${start}`;
+  }
   // Vimeo: vimeo.com/ID
   const vmMatch = url.match(/vimeo\.com\/(\d+)/);
   if (vmMatch) return `https://player.vimeo.com/video/${vmMatch[1]}`;
