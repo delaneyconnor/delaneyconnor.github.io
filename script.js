@@ -283,6 +283,13 @@ function el(tag, cls) {
   return e;
 }
 
+// ── Markdown link parser ──────────────────────────────────
+
+function parseMdLinks(text) {
+  return text.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
+    '<a href="$2" target="_blank" rel="noopener" class="s-link">$1</a>');
+}
+
 // ── Video embed helpers ───────────────────────────────────
 
 function getEmbedUrl(url) {
@@ -328,7 +335,7 @@ function openFocus(entry) {
       <div class="s-meta">${dateRange(entry)}</div>
       ${entry.location     ? `<div class="s-meta">${entry.location}</div>` : ''}
     </div>
-    ${desc ? `<div class="s-desc">${desc.replace(/\n/g, '<br>')}</div>` : ''}
+    ${desc ? `<div class="s-desc">${parseMdLinks(desc).replace(/\n/g, '<br>')}</div>` : ''}
     ${entry.external_link ? `<a href="${entry.external_link}" target="_blank" rel="noopener" class="s-link">${entry.external_link_label || 'View →'}</a>` : ''}
   `;
 
