@@ -343,9 +343,13 @@ function openFocus(entry) {
   const desc  = entry.long_description || entry.short_description || '';
   const dotSvg = `<svg width="18" height="18" viewBox="0 0 16 16">${SHAPE_SVG[shape]}</svg>`;
 
-  const imgKeys = ['image_1','image_2','image_3','image_4','image_5','image_6','image_7','image_8','image_9','image_10','image_11','image_12'];
-  const embedUrl = getEmbedUrl(entry.external_link);
-  const isDoc = embedUrl && embedUrl.includes('drive.google.com');
+  const extLinks = [1, 2, 3]
+    .map(i => ({ url: (entry[`external_link_${i}`] || '').trim(), label: (entry[`external_link_label_${i}`] || '').trim() }))
+    .filter(l => l.url);
+
+  const linksHtml = extLinks.map(l =>
+    `<a href="${l.url}" target="_blank" rel="noopener" class="s-link">${l.label || 'View →'}</a>`
+  ).join('');
 
   const textCol = `
     <div class="s-title-row">${dotSvg}<div class="s-title">${entry.title}</div></div>
@@ -356,8 +360,16 @@ function openFocus(entry) {
       ${entry.location     ? `<div class="s-meta">${entry.location}</div>` : ''}
     </div>
     ${desc ? `<div class="s-desc">${parseMdLinks(desc).replace(/\n/g, '<br>')}</div>` : ''}
-    ${entry.external_link ? `<a href="${entry.external_link}" target="_blank" rel="noopener" class="s-link">${entry.external_link_label || 'View →'}</a>` : ''}
+    ${linksHtml}
   `;
+
+  const imgKeys = ['image_1','image_2','image_3','image_4','image_5','image_6','image_7','image_8','image_9','image_10','image_11','image_12'];
+  const embedsHtml = extLinks.map(l => {
+    const eUrl = getEmbedUrl(l.url);
+    if (!eUrl) return '';
+    const doc = eUrl.includes('drive.google.com');
+    return `<div class="sheet-embed${doc ? ' sheet-embed--doc' : ''}"><iframe src="${eUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+  }).join('');
 
   const imgFigures = imgKeys
     .filter(k => entry[k])
@@ -377,10 +389,7 @@ function openFocus(entry) {
       }
       return `<figure class="sheet-figure"><img src="${val}" alt="${entry.title}">${meta}</figure>`;
     }).join('');
-  const embedHtml = embedUrl
-    ? `<div class="sheet-embed${isDoc ? ' sheet-embed--doc' : ''}"><iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
-    : '';
-  const imgHtml = embedHtml + (imgFigures || (!embedHtml ? `<div class="sheet-img-placeholder"></div>` : ''));
+  const imgHtml = embedsHtml + (imgFigures || (!embedsHtml ? `<div class="sheet-img-placeholder"></div>` : ''));
 
   body.className = 'sheet-body two-col';
   body.innerHTML = `
