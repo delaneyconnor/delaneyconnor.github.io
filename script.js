@@ -122,7 +122,7 @@ function entryEnd(entry) {
   return toMonths(entry.end_month || 12, entry.end_year);
 }
 
-const MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MO = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 function moStr(n) { return MO[(parseInt(n) || 1) - 1] || ''; }
 
 function dateRange(entry) {
