@@ -303,23 +303,6 @@ body::after {
 .dot-start { left: -10px; }
 .dot-end   { right: -10px; }
 
-.bar-lbl {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.83rem;
-  font-weight: 500;
-  letter-spacing: 0.07em;
-  color: #000;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  right: calc(100% + 12px);
-  left: auto;
-}
-.bar:hover .bar-lbl { opacity: 1; }
 
 
 /* ── SCRIM ────────────────────────────────────────────── */
