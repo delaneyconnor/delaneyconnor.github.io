@@ -293,8 +293,10 @@ function el(tag, cls) {
 // ── Markdown link parser ──────────────────────────────────
 
 function parseMdLinks(text) {
-  return text.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,
-    '<a href="$2" target="_blank" rel="noopener" class="s-link">$1</a>');
+  return text.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, (_, label, url) => {
+    const external = !url.includes(window.location.hostname);
+    return `<a href="${url}"${external ? ' target="_blank" rel="noopener"' : ''} class="s-link">${label}</a>`;
+  });
 }
 
 // ── Video embed helpers ───────────────────────────────────
