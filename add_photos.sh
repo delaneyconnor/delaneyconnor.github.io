@@ -17,7 +17,7 @@ if [ "$#" -gt 0 ]; then
 else
   mapfile -t FILES < <(find ~/Downloads -maxdepth 1 -type f \( \
     -iname "*.avif" -o -iname "*.jpg" -o -iname "*.jpeg" \
-    -o -iname "*.png"  -o -iname "*.webp" \) | sort)
+    -o -iname "*.png"  -o -iname "*.webp" -o -iname "*.html" \) | sort)
 fi
 
 if [ "${#FILES[@]}" -eq 0 ]; then
