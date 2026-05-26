@@ -511,6 +511,11 @@ body::after {
   line-height: 1.7;
   color: #000;
 }
+.s-desc .s-link {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
 
 .about-bio p {
   font-family: 'IBM Plex Sans', sans-serif;
