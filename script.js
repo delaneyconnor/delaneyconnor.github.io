@@ -89,7 +89,7 @@ function parseCSV(text) {
       headers.forEach((h, i) => { obj[h] = (vals[i] || '').trim(); });
       return obj;
     })
-    .filter(r => r.title && r.start_year);
+    .filter(r => r.title && (r.start_year || r.end_year));
 }
 
 function splitRow(line) {
@@ -126,11 +126,17 @@ const MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','D
 function moStr(n) { return MO[(parseInt(n) || 1) - 1] || ''; }
 
 function dateRange(entry) {
-  const s = `${moStr(entry.start_month)} ${entry.start_year}`;
+  const hasStart = !!entry.start_year;
   const ey = (entry.end_year || '').toLowerCase();
-  if (!ey) return s;
-  const e = ey === 'present' ? 'Present' : `${moStr(entry.end_month)} ${entry.end_year}`;
-  return `${s} – ${e}`;
+  if (!hasStart) return `${moStr(entry.end_month)} ${entry.end_year}`;
+  const s = `${moStr(entry.start_month)} ${entry.start_year}`;
+  if (!ey) return `${s} – Present`;
+  return `${s} – ${moStr(entry.end_month)} ${entry.end_year}`;
+}
+
+function entryStart(entry) {
+  if (!entry.start_year) return toMonths(entry.end_month, entry.end_year);
+  return toMonths(entry.start_month, entry.start_year);
 }
 
 // ── Build rows ────────────────────────────────────────────
@@ -138,7 +144,7 @@ function dateRange(entry) {
 
 function buildRows(data, rowH) {
   const sorted = [...data].sort((a, b) =>
-    toMonths(a.start_month, a.start_year) - toMonths(b.start_month, b.start_year)
+    entryStart(a) - entryStart(b)
   );
   const rows = sorted.map((entry, i) => ({
     entry,
@@ -159,7 +165,7 @@ function render() {
   if (!allData.length) { canvas.innerHTML = ''; return; }
 
   // Always use the full dataset for the time range so the axis never shifts
-  const allStart = allData.map(d => toMonths(d.start_month, d.start_year));
+  const allStart = allData.map(d => entryStart(d));
   const allEnd   = allData.map(d => entryEnd(d));
   const minM   = Math.min(...allStart);
   const maxM   = Math.max(...allEnd);
@@ -217,10 +223,10 @@ function render() {
   // Entry lines branching above and below the axis
   rows.forEach(row => {
     const entry   = row.entry;
-    const startM  = toMonths(entry.start_month, entry.start_year);
+    const startM  = entryStart(entry);
     const endM    = entryEnd(entry);
     const left    = (startM - originM) * PPM;
-    const isPoint = !entry.end_year && !entry.end_month;
+    const isPoint = !entry.start_year || (!entry.end_year && !entry.end_month);
     const durPx   = isPoint ? 0 : (endM - startM) * PPM;
     const width   = isPoint ? 14 : Math.max(durPx + PPM, 10);
     const top     = canvasAxisY + row.yOffset - Math.round(BAR_H / 2);
@@ -314,14 +320,14 @@ function openFocus(entry) {
 
   // Zoom so the entry's duration fills ~75% of the viewport width
   const wrap     = document.getElementById('canvas-wrap');
-  const startM   = toMonths(entry.start_month, entry.start_year);
+  const startM   = entryStart(entry);
   const endM     = entryEnd(entry);
   const duration = Math.max(endM - startM + 1, 1);
   PPM = Math.max(3, Math.min(60, (wrap.clientWidth * 0.75) / duration));
   render();
 
   // Scroll to center the entry horizontally
-  const originM  = (Math.floor(Math.min(...allData.map(d => toMonths(d.start_month, d.start_year))) / 12) - 2) * 12;
+  const originM  = (Math.floor(Math.min(...allData.map(d => entryStart(d))) / 12) - 2) * 12;
   const barLeft  = (startM - originM) * PPM;
   const barWidth = Math.max((endM - startM + 1) * PPM, 10);
   wrap.scrollLeft = barLeft + barWidth / 2 - wrap.clientWidth / 2;
@@ -377,7 +383,7 @@ function openFocus(entry) {
   if (nextBtn) {
     const sorted = [...allData]
       .filter(d => activeFilters.has(d.category))
-      .sort((a, b) => toMonths(a.start_month, a.start_year) - toMonths(b.start_month, b.start_year));
+      .sort((a, b) => entryStart(a) - entryStart(b));
     const idx = sorted.findIndex(d => d.title === entry.title);
     if (idx >= 0 && sorted.length > 1) {
       const nextEntry = sorted[(idx + 1) % sorted.length];
@@ -553,7 +559,7 @@ function makeBtn(label, shape, active) {
 // ── Fit timeline to screen width ─────────────────────────
 
 function fitToWidth(data) {
-  const allStart = data.map(d => toMonths(d.start_month, d.start_year));
+  const allStart = data.map(d => entryStart(d));
   const allEnd   = data.map(d => entryEnd(d));
   const startY   = Math.floor(Math.min(...allStart) / 12) - 2;
   const endY     = Math.ceil((Math.max(...allEnd) + 1) / 12) + 1;
