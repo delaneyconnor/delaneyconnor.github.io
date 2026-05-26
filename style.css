@@ -383,7 +383,7 @@ body::after {
   align-items: center;
   gap: 3px;
 }
-.sheet-close span:first-child { font-size: 1rem; line-height: 1; }
+.sheet-close span:first-child { font-size: 1.5rem; line-height: 1; }
 .sheet-close span:last-child  { font-size: 0.6rem; line-height: 1; }
 .sheet-close:hover { opacity: 0.45; }
 
@@ -405,7 +405,7 @@ body::after {
   align-items: center;
   gap: 3px;
 }
-.sheet-next span:first-child { font-size: 1rem;   line-height: 1; }
+.sheet-next span:first-child { font-size: 1.5rem; line-height: 1; }
 .sheet-next span:last-child  { font-size: 0.6rem; line-height: 1; }
 .sheet-next:hover { opacity: 0.45; }
 
