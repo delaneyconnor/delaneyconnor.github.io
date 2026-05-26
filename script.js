@@ -659,6 +659,15 @@ function init() {
 
   document.getElementById('sheet-close').addEventListener('click', closeFocus);
   document.getElementById('about-btn').addEventListener('click', openAbout);
+
+  document.getElementById('sheet-body').addEventListener('click', e => {
+    const a = e.target.closest('a.s-link');
+    if (!a) return;
+    const url = a.getAttribute('href') || '';
+    const hash = url.includes('#') ? url.split('#')[1] : '';
+    if (hash) { e.preventDefault(); resolveHash(hash); }
+  });
+
   initMobileToggle();
 
   // Fetch data as soon as the page loads
