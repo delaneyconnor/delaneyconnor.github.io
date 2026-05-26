@@ -84,7 +84,7 @@ body::after {
   background: none;
   border: none;
   padding: 0;
-  cursor: pointer;
+  cursor: crosshair;
   transition: opacity 0.3s;
 }
 .view-btn:hover { opacity: 0.45; }
@@ -160,7 +160,7 @@ body::after {
   flex-shrink: 0;
   background: none;
   border: none;
-  cursor: pointer;
+  cursor: crosshair;
   color: #000;
   padding: 0;
 }
@@ -195,7 +195,7 @@ body::after {
   border: none;
   background: none;
   color: #000;
-  cursor: pointer;
+  cursor: crosshair;
   white-space: nowrap;
   display: flex;
   flex-direction: column;
@@ -267,7 +267,7 @@ body::after {
   position: absolute;
   height: 2px;
   background: #000;
-  cursor: pointer;
+  cursor: crosshair;
   overflow: visible;
   display: flex;
   align-items: center;
@@ -367,7 +367,7 @@ body::after {
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 500;
   letter-spacing: 0.1em;
-  cursor: pointer;
+  cursor: crosshair;
   color: #000;
   padding: 0;
   pointer-events: all;
@@ -389,7 +389,7 @@ body::after {
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 500;
   letter-spacing: 0.1em;
-  cursor: pointer;
+  cursor: crosshair;
   color: #000;
   padding: 0;
   pointer-events: all;
@@ -525,7 +525,7 @@ body::after {
   letter-spacing: 0.07em;
   background: none;
   border: none;
-  cursor: pointer;
+  cursor: crosshair;
   color: #000;
   padding: 0;
   align-items: center;
@@ -562,7 +562,7 @@ body::after {
   letter-spacing: 0.07em;
   background: none;
   border: none;
-  cursor: pointer;
+  cursor: crosshair;
   color: #000;
   padding: 0;
   text-align: left;
